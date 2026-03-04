@@ -1,0 +1,160 @@
+﻿@page "/Consultas/Tramites"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Administrador,Evaluador")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {$"Consulta de trámites",""}
+                  }) />
+
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Consulta de trámites
+</h3>
+
+
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <h4 class="card-title mb-0 p-1">B&uacute;squeda de Tr&aacute;mites</h4>
+    </div>
+    <div class="card-body">
+        <div class="card-body p-0 mb-1">
+
+            <div class="row">
+                
+                <div class="col-4">
+                    <label class="col-form-label">Estado:</label>
+                    <CustomRadzenDropDown class="form-control"
+                                            Name="ddlEstados"
+                                            AllowFiltering=true
+                                            TextProperty="Descripcion"
+                                            ValueProperty="Id"
+                                            Data="@lstEstados"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            @bind-Value="@filter.IdEstado"
+                                            />
+                </div>
+                <div class="col-2">
+                    <label class="col-form-label">Nro. Tramite:</label>
+                    <div>
+                    <CustomRadzenNumeric TValue="int?"
+                                         MaxIntegers="6"
+                                         MaxDecimals="0"
+                                         class="form-control"
+                                         ShowUpDown="false"
+                                         @bind-Value=@filter.IdTramite
+                                          />
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="col-form-label">Empresa:</label>
+                    <CustomRadzenDropDown class="form-control"
+                                            Name="ddlEmpresas"
+                                            AllowFiltering=true
+                                            TextProperty="Descripcion"
+                                            ValueProperty="Id"
+                                            Data="@lstEmpresas"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            @bind-Value="@filter.IdEmpresa"
+                                            />
+                </div>
+
+            </div>
+            <div class="row mt-3">
+                <div class="col-5">
+                    <div class="form-check">
+                        <input id="chkOcultarBorradores" type="checkbox" class="form-check-input" checked="@OcultarBorradores" @onchange="chkOcultarBorradoresChange" />
+                        <label class="form-check-label" for="chkOcultarBorradores">Ocultar borradores</label>
+                    </div>
+                </div>
+                <div class="col-7">
+                    <div class="d-flex align-items-end">
+                        <button type="button" class="btn btn-violet" @onclick=@BuscarClick>
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">search</span>
+                                <span>Buscar</span>
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-light ms-1" @onclick=@LimpiarClick>
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">filter_alt_off</span>
+                                <span>Limpiar</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <h4 class="card-title mb-0 p-1">Resultados de la b&uacute;squeda</h4>
+    </div>
+    <div class="card-body">
+        <div class="card-body p-0 mb-1">
+            <div class="row">
+                <div class="col-6">
+                    <label>Lista de tr&aacute;mites</label>
+                </div>
+                <div class="col-6 text-end">
+                    <label>Cantidad de registros: @count</label>
+                </div>
+            </div>
+
+            <div class="row mt-1">
+                <div class="col-12">
+                    <RadzenDataGrid @ref="grdTramites"
+                                    Count="@count"
+                                    Data="@lstTramites"
+                                    LoadData="@LoadData"
+                                    AllowSorting="false"
+                                    AllowPaging="true"
+                                    AllowColumnResize="true"
+                                    PageSize="20"
+                                    PagerHorizontalAlign="HorizontalAlign.Center"
+                                    ColumnWidth="200px"
+                                    IsLoading="@isBusyGrid"
+                                    TItem="ItemGrillaConsultaTramiteDTO">
+
+                        <Columns>
+
+                            <RadzenDataGridColumn TItem="ItemGrillaConsultaTramiteDTO" Property="IdTramite" Title="Nro. Trámite" Width="100px" CssClass="text-center" HeaderCssClass="text-center" />
+                            
+                            <RadzenDataGridColumn TItem="ItemGrillaConsultaTramiteDTO" Property="NombreTipoTramite" Title="Tipo de Trámite"/>
+                            <RadzenDataGridColumn TItem="ItemGrillaConsultaTramiteDTO" Property="UsernameEmpresa" Title="Empresa" >
+                                <Template Context="data">
+                                    <div>@data.UsernameEmpresa - @data.RazonSocialEmpresa</div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ItemGrillaConsultaTramiteDTO" Property="CreateDate" Title="Fecha Inicio" FormatString="{0:dd/MM/yyyy HH:mm}" Width="160px" />
+                            <RadzenDataGridColumn TItem="ItemGrillaConsultaTramiteDTO" Property="NombreEstado" Title="Estado" />
+                            <RadzenDataGridColumn TItem="ItemGrillaConsultaTramiteDTO" Property="UsernameAsignado" Title="Evaluador" />
+                            <RadzenDataGridColumn TItem="ItemGrillaConsultaTramiteDTO" Property="IdTramite" Sortable="false" Filterable="false" CssClass="text-center" Width="120px">
+                                <Template Context="data">
+
+                                        
+                                        <RadzenButton Click="@(e => VisualizarClick(data))"
+                                                        data-toggle="tooltip"
+                                                        data-placement="top"
+                                                        title="visualizar"
+                                                        Icon="visibility"
+                                                        ButtonType="ButtonType.Button"
+                                                        ButtonStyle="ButtonStyle.Light" />
+
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                        <EmptyTemplate>
+                            <p>No hay registros</p>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

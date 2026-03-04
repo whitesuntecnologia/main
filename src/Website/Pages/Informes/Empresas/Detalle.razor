@@ -1,0 +1,325 @@
+﻿@page "/Consultas/Empresas/Detalle/{IdEmpresa:int}"
+@using BlazorPro.Spinkit
+@using DataTransferObject
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "ConsultasEmpresas")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                                    {$"Informes","/29"},
+                                    {$"Empresas","/Consultas/Empresas"},
+                                    {$"Detalle",""}
+                                    }) />
+<hr class="mt-2 mb-2" />
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+        
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            @if (isBusyInitialLoading)
+            {
+                <h2>Cargando...</h2>
+            }
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+        @if (Empresa != null)
+        {
+            <div class="card mt-3">
+                <div class="card-header pt-2 pb-2 navbar-button">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div>
+                            <h4 class="card-title mb-0">Detalle de la empresa</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+              
+                    <div class="row">
+                        <label class="col-2 col-form-label">Número de empresa: </label>
+                        <div class="col-10">
+                            <RadzenTextBox class="form-control" Style="width:135px"
+                                        Disabled="true"
+                                        Value="@Empresa.IdEmpresa.ToString()" />
+                            
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-2 col-form-label">C.U.I.T.: </label>
+                        <div class="col-10">
+                            <RadzenMask Value="@Empresa.CuitEmpresa.ToString()" 
+                                        Mask="**-********-*"
+                                        CharacterPattern="[0-9]"
+                                        Placeholder="00-00000000-0"
+                                        class="form-control"
+                                        Style="width:200px"
+                                        Disabled="true">
+                            </RadzenMask>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-2 col-form-label">Razón Social: </label>
+                        <div class="col-10">
+                            <RadzenTextBox class="form-control"
+                                           Disabled="true"
+                                           @bind-Value="@Empresa.RazonSocial" />
+
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-2 col-form-label">Domicilio: </label>
+                        <div class="col-10">
+                            <RadzenTextBox class="form-control"
+                                           Disabled="true"
+                                           @bind-Value="@Empresa.Domicilio" />
+
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-2 col-form-label">Vencimiento: </label>
+                        <div class="col-10 d-flex">
+                            <RadzenTextBox class="form-control" Style="width:135px"
+                                           Disabled="true"
+                                           Value="@Empresa.Vencimiento?.ToString("dd/MM/yyyy")" />
+                            <label class="col-form-label ms-2 me-2">Balance: </label>
+                            <RadzenTextBox class="form-control" Style="width:135px"
+                                           Disabled="true"
+                                           Value="@Empresa.FechaBalance?.ToString("dd/MM/yyyy")" />
+
+                            <label class="col-form-label ms-2 me-2">Antigüedad: </label>
+                            <RadzenTextBox class="form-control" Style="width:135px"
+                                           Disabled="true"
+                                           Value="@Empresa.AniosAntiguedad.ToString()" />
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-2 col-form-label">C.U.I.T. Representante: </label>
+                        <div class="col-10">
+                            <RadzenMask Value="@Empresa.CuitRepresentante"
+                                        Mask="**-********-*"
+                                        CharacterPattern="[0-9]"
+                                        Placeholder="00-00000000-0"
+                                        class="form-control"
+                                        Style="width:200px"
+                                        Disabled="true">
+                            </RadzenMask>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-2 col-form-label">Nº trámite origen datos: </label>
+                        <div class="col-10">
+                            <RadzenTextBox class="form-control" Style="width:135px"
+                                           Disabled="true"
+                                           Value="@Empresa.IdTramiteOrigen.ToString()" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header pt-2 pb-2 navbar-button">
+                    <div class="d-flex flex-row align-items-center">
+                        <div>
+                            <h4 class="card-title mb-0">Declaraci&oacute;n de Estado de Deuda (BCRA)</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                        Cantidad de registros: @Empresa.Deudas.Count()
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid Count="@Empresa.Deudas.Count"
+                                            Data="@Empresa.Deudas"
+                                            AllowSorting="true"
+                                            AllowPaging="false"
+                                            AllowColumnResize="true"
+                                            TItem="EmpresaDeudaDto">
+                                <Columns>
+
+                                    <RadzenDataGridColumn TItem="EmpresaDeudaDto" Property="Entidad" Title="Entidad" Filterable="false" />
+                                    <RadzenDataGridColumn TItem="EmpresaDeudaDto" Property="Periodo" Title="Período" Filterable="false" />
+                                    <RadzenDataGridColumn TItem="EmpresaDeudaDto" Property="Situacion" Title="Situación" Filterable="false" />
+                                    <RadzenDataGridColumn TItem="EmpresaDeudaDto" Property="Monto" Title="Monto" Filterable="false" FormatString="{0:C}" />
+                                    <RadzenDataGridColumn TItem="EmpresaDeudaDto" Property="DiasDeAtraso" Title="Días de atraso" Filterable="false" />
+
+
+                                </Columns>
+                                <EmptyTemplate>
+                                    <div class="d-flex flex-row align-items-center">
+                                        <span class="material-icons" style="font-size:64px; color:lightgray">
+                                            block
+                                        </span>
+                                        <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                                    </div>
+                                </EmptyTemplate>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header pt-2 pb-2 navbar-button">
+                    <div class="d-flex flex-row align-items-center">
+                        <div>
+                            <h4 class="card-title mb-0">Especialidades</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                        Cantidad de registros: @Empresa.Especialidades.Count()
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+
+
+                            <RadzenDataGrid Count="@Empresa.Especialidades.Count"
+                                            Data="@Empresa.Especialidades"
+                                            AllowSorting="true"
+                                            AllowPaging="false"
+                                            AllowColumnResize="true"
+                                            TItem="EmpresaEspecialidadDto">
+
+                                <Columns>
+
+                                    <RadzenDataGridColumn TItem="EmpresaEspecialidadDto" Property="IdEmpresaEspecialidad" Sortable="false" Filterable="false" CssClass="col-grid-right">
+                                        <Template Context="data">
+                                            <h4>Especialidad: <span class="rz-color-primary-dark">@data.NombreEspecialidad</span></h4>
+
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <h4>Tareas</h4>
+                                                    <ul>
+                                                        @foreach (var seccion in data.Secciones.OrderBy(x => x.DescripcionSeccion))
+                                                        {
+                                                            <li class="rz-color-series-1">
+                                                                @($"Sección {seccion.DescripcionSeccion})")
+                                                            </li>
+                                                            <ul>
+                                                                @foreach (var tarea in seccion.Tareas)
+                                                                {
+                                                                    <li class="text-wrap">@($"{tarea.DescripcionTarea}")</li>
+                                                                }
+                                                            </ul>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                                <div class="col-6">
+                                                    @{
+                                                        <h4>Equipo / Maquinaria mínima requerida</h4>
+                                                        List<EmpresaEquipoDto> lstEquipos = new();
+                                                        foreach (var seccion in data.Secciones)
+                                                        {
+                                                            foreach (var tarea in seccion.Tareas)
+                                                            {
+                                                                foreach (var equipo in tarea.Equipos)
+                                                                {
+                                                                    if (!lstEquipos.Exists(e => e.IdEquipo == equipo.IdEquipo))
+                                                                        lstEquipos.Add(equipo);
+                                                                }
+                                                            }
+                                                        }
+                                                        <ul>
+
+                                                            @foreach (var item in lstEquipos)
+                                                            {
+                                                                <li class="text-wrap">@item.DescripcionEquipo</li>
+                                                            }
+                                                        </ul>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+
+
+                                </Columns>
+                                <EmptyTemplate>
+                                    <div class="d-flex flex-row align-items-center">
+                                        <span class="material-icons" style="font-size:64px; color:lightgray">
+                                            block
+                                        </span>
+                                        <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                                    </div>
+                                </EmptyTemplate>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header pt-2 pb-2 navbar-button">
+                    <div class="d-flex flex-row align-items-center">
+                        <div>
+                            <h4 class="card-title mb-0">Representantes técnicos</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                        Cantidad de registros: @Empresa.RepresentantesTecnicos.Count()
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid Count="@Empresa.RepresentantesTecnicos.Count"
+                                            Data="@Empresa.RepresentantesTecnicos"
+                                            AllowSorting="true"
+                                            AllowPaging="false"
+                                            AllowColumnResize="true"
+                                            TItem="EmpresaRepresentanteTecnicoDto">
+
+                                <Columns>
+
+                                    <RadzenDataGridColumn TItem="EmpresaRepresentanteTecnicoDto" Property="IdRepresentanteTecnico" Title="Nombre/s y Apellido" Sortable="false" Filterable="false">
+                                        <Template Context="data">
+                                            @(data.Nombres + " " + data.Apellido)
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="EmpresaRepresentanteTecnicoDto" Property="Cuit" Title="C.U.I.T." Sortable="false" Filterable="false" Width="130px" />
+                                    <RadzenDataGridColumn TItem="EmpresaRepresentanteTecnicoDto" Property="Cargo" Title="Cargo" Sortable="false" Filterable="false" />
+                                    <RadzenDataGridColumn TItem="EmpresaRepresentanteTecnicoDto" Property="IdRepresentanteTecnico" Title="Datos Varios" Sortable="false" Filterable="false">
+                                        <Template Context="data">
+                                            <div class="fs-5">
+                                                <div class="text-wrap"><strong>Matr&iacute;cula:</strong><span class="ms-1">@data.Matricula</span></div>
+                                                <div class="text-wrap"><strong>Fecha Venc. Matrícula:</strong><span class="ms-1">@data.FechaVencimientoMatricula.ToString("dd/MM/yyyy")</span></div>
+                                                <div class="text-wrap"><strong>Fecha Venc. Contrato:</strong><span class="ms-1">@data.FechaVencimientoContrato.ToString("dd/MM/yyyy")</span></div>
+                                            </div>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+
+                                </Columns>
+                                <EmptyTemplate>
+                                    <div class="d-flex flex-row align-items-center">
+                                        <span class="material-icons" style="font-size:64px; color:lightgray">
+                                            block
+                                        </span>
+                                        <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                                    </div>
+                                </EmptyTemplate>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                No se encontró la empresa solicitada.
+            </div>
+        }
+    </ContentTemplate>
+</SpinLoader>

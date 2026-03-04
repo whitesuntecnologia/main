@@ -1,0 +1,241 @@
+﻿@page "/Consultas/Empresas"
+@using BlazorPro.Spinkit
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "ConsultasEmpresas")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {$"Informes","/29"},
+                  {$"Empresas",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+        
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            @if (isBusyInitialLoading)
+            {
+                <h2>Cargando...</h2>
+            }
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+        <div class="d-flex flex-row justify-content-between">
+            <h3>
+                Empresas
+            </h3>
+        </div>
+        <div class="card mt-1">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <h4 class="card-title mb-0 p-1">B&uacute;squeda de Empresas</h4>
+            </div>
+            <div class="card-body">
+                <div class="card-body p-0 mb-1">
+                    <EditForm Model="@BusquedaModel">
+                        <Blazored.FluentValidation.FluentValidationValidator />
+
+                        <div class="row">
+                            <label class="col-form-label col-2 text-end mt-1">Empresas:</label>
+                            <div class="col-4">
+                                <RadzenRadioButtonList @bind-Value=@BusquedaModel.TiposEmpresasSelected TValue="int" >
+                                    <Items>
+                                        <RadzenRadioButtonListItem Text="Registradas" Value="1" />
+                                        <RadzenRadioButtonListItem Text="En proceso de registro" Value="2" />
+                                    </Items>
+                                </RadzenRadioButtonList>
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">CUIT:</label>
+                            <div class="col-4">
+                                <CustomRadzenNumeric TValue="decimal?"
+                                                     MaxIntegers="11"
+                                                     MaxDecimals="0"
+                                                     class="form-control"
+                                                     ShowUpDown="false"
+                                                     @bind-Value=@BusquedaModel.Cuit
+                                                     Placeholder="11 dígitos sin guiones"
+/>
+                                <ValidationMessage For="() => BusquedaModel.Cuit" />
+                            </div>
+
+                            <label class="col-form-label col-2 text-end">Razón Social:</label>
+                            <div class="col-4">
+                                <RadzenTextBox class="form-control"
+                                               MaxLength="100"
+                                               @bind-Value=@BusquedaModel.RazonSocial
+                                                />
+                                <ValidationMessage For="() => BusquedaModel.RazonSocial" />
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">Fecha de Registro Desde:</label>
+                            <div class="col-4">
+                                    <RadzenDatePicker TValue="DateTime?"
+                                                      DateFormat="d"
+                                                      @bind-Value=@BusquedaModel.FechaRegistroDesde>
+                                    </RadzenDatePicker>
+                                <ValidationMessage For="() => BusquedaModel.FechaRegistroDesde" />
+                            </div>
+
+                            <label class="col-form-label col-2 text-end">Fecha de Registro Hasta:</label>
+                            <div class="col-4">
+                                <RadzenDatePicker TValue="DateTime?"
+                                                  DateFormat="d"
+                                                @bind-Value=@BusquedaModel.FechaRegistroHasta>
+                                                </RadzenDatePicker>
+                                <ValidationMessage For="() => BusquedaModel.FechaRegistroHasta" />
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">Fecha de Vencimiento Desde:</label>
+                            <div class="col-4">
+                                <RadzenDatePicker TValue="DateTime?"
+                                                  DateFormat="d"
+                                                  @bind-Value=@BusquedaModel.FechaVencimientoDesde>
+                                </RadzenDatePicker>
+                                <ValidationMessage For="() => BusquedaModel.FechaVencimientoDesde" />
+                            </div>
+
+                            <label class="col-form-label col-2 text-end">Fecha de Vencimiento Hasta:</label>
+                            <div class="col-4">
+                                <RadzenDatePicker TValue="DateTime?"
+                                                  DateFormat="d"
+                                                  @bind-Value=@BusquedaModel.FechaVencimientoHasta>
+                                </RadzenDatePicker>
+                                <ValidationMessage For="() => BusquedaModel.FechaVencimientoHasta" />
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">Especialidades:</label>
+                            <div class="col-10">
+                                <CustomRadzenDropDown class="form-control"
+                                                          AllowFiltering=true
+                                                          Multiple="true"
+                                                          TextProperty="Descripcion"
+                                                          ValueProperty="Id"
+                                                          Data="@lstEspecialidades"
+                                                          FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                          @bind-Value="@BusquedaModel.EspecialidadesSelected" />
+
+                                <ValidationMessage For="() => BusquedaModel.FechaVencimientoDesde" />
+                            </div>
+
+                        
+                        </div>
+                        <div class="d-flex flex-row align-items-end justify-content-center mt-2">
+                            <button type="button" class="btn btn-violet" @onclick=@BuscarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">search</span>
+                                    <span>Buscar</span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-light ms-1" @onclick=@LimpiarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">filter_alt_off</span>
+                                    <span>Limpiar</span>
+                                </span>
+                            </button>
+                        </div>
+                
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card mt-3">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <div class="d-flex flex-row justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">Listado de Empresas</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                
+                <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div>
+                            Cantidad de registros: @lstEmpresas.Count()
+                        </div>
+                        <div>
+
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Exportar <i class="mdi mdi-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu " data-popper-placement="bottom-start" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 38px);">
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarExcel>Excel</a>
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarCsv>Csv</a>
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarPdf>Pdf</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    
+                        
+                <RadzenDataGrid @ref=@grd Count="@lstEmpresas.Count"
+                                class="mt-1"
+                                Data="@lstEmpresas"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                AllowColumnResize="true"
+                                TItem="InformeEmpresaDTO"
+                                ColumnWidth="200px"
+                                PageSize="20"
+                                IsLoading="@isBusyGrid">
+                    <Columns>
+
+                        <RadzenDataGridColumn TItem="InformeEmpresaDTO" Property="CuitEmpresa" Title="CUIT" Filterable="false" Width="80px" />
+                        <RadzenDataGridColumn TItem="InformeEmpresaDTO" Property="RazonSocial" Title="Razón Social" Filterable="false" />
+                        <RadzenDataGridColumn TItem="InformeEmpresaDTO" Property="Domicilio" Title="Domicilio" Filterable="false" />
+                        <RadzenDataGridColumn TItem="InformeEmpresaDTO" Property="FechaDeRegistro" Title="Fecha Registro" Filterable="false" FormatString="{0:dd/MM/yyyy}" Width="80px" />
+                        <RadzenDataGridColumn TItem="InformeEmpresaDTO" Property="FechaDeVencimiento" Title="Vencimiento" Filterable="false" FormatString="{0:dd/MM/yyyy}" Width="80px" />
+                        <RadzenDataGridColumn TItem="InformeEmpresaDTO" Property="IdTramiteOrigen" Title="Trámite Origen" Filterable="false" Width="70px" />
+                        <RadzenDataGridColumn TItem="InformeEmpresaDTO" Title="Ver Detalle" Filterable="false" Sortable="false" Width="80px"TextAlign="TextAlign.Center" >
+                            <Template Context="data" >
+                                <RadzenButton Click="@(e => VisualizarClick(data))"
+                                            data-toggle="tooltip"
+                                            data-animation  
+                                            data-placement="top"
+                                            title="Visualizar"
+                                            Icon="visibility"
+                                            ButtonType="ButtonType.Button"
+                                            ButtonStyle="ButtonStyle.Light">
+                                </RadzenButton>
+                            </Template>
+                        </RadzenDataGridColumn>
+                                    
+                    </Columns>
+                    <EmptyTemplate>
+                        <div class="d-flex flex-row align-items-center">
+                            <span class="material-icons" style="font-size:64px; color:lightgray">
+                                block
+                            </span>
+                            <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                        </div>
+                    </EmptyTemplate>
+                </RadzenDataGrid>
+                        
+                    
+                
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>

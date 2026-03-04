@@ -1,0 +1,34 @@
+﻿@page "/Tramites/IniciarTramite"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles ="Empresa")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){ { "Iniciar Trámite","" } }) />
+
+@if (isPageLoaded)
+{
+    if(TramitePendiente != null)
+    {
+        
+        <div class="alert alert-info mt-3" >
+            <h3>No es posible iniciar un nuevo trámite ya que el usuario posee un trámite pendiente.</h3>
+            <h3>El trámite es el Nro. <a href="/Tramites/Visualizar/@(TramitePendiente.IdentificadorUnico)">@TramitePendiente.IdTramite</a>.</h3>
+        </div>
+    }
+    else if (!EmpresaVencida && EmpresaDto.Vencimiento.HasValue)
+    {
+        <div class="alert alert-info mt-3">
+            <h3>No es posible iniciar un nuevo trámite ya que la empresa no se encuentra vencida, aun no pasaron 2 años de su vencimiento.</h3>
+            <h3>La fecha de vencimiento del registro de la empresa es el @EmpresaDto.Vencimiento!.Value.ToString("dd/MM/yyyy").</h3>
+            <h3>Para poder realizar un nuevo trámite de inscripción deben pasar al menos 2 años de su vencimiento.</h3>
+
+            <h3 class="mt-3">Puede utilizar la opcion de Actualización de trámite.</h3> 
+        
+            <ul class="h3">
+                <li class="mt-2">Si desea un nuevo trámite de actualización de los datos (SOLO RESPONSABLES TECNICOS) del último trámite, presione <a href="/Tramites/IniciarTramiteActualizacion/3">aqu&Iacute;</a></li>
+                <li class="mt-2">Si desea un nuevo trámite de actualización de los datos (CAPACIDAD TECNICA, EQUIPOS y/o RESPONSABLES TECNICOS - Solo 1 vez al año) del último trámite, presione <a href="/Tramites/IniciarTramiteActualizacion/4">aqu&Iacute;</a></li>
+                <li class="mt-2">Si desea un nuevo trámite de actualización de TODOS los datos (COMPLETA - Solo 1 vez al año) del último trámite, presione <a href="/Tramites/IniciarTramiteActualizacion/5">aqu&Iacute;</a></li>
+            </ul>
+        
+        </div>
+    }
+}

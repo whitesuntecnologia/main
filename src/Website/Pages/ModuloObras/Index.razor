@@ -1,0 +1,223 @@
+﻿@page "/ModuloObras"
+@using BlazorPro.Spinkit
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "ModuloObrasEditar")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {$"Módulo de Obras",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+
+<SpinLoader IsLoading="@(isBusyInitialLoading || isBusyProcessUpdating)">
+    <LoadingTemplate>
+        
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            @if (isBusyInitialLoading)
+            {
+                <h2>Cargando...</h2>
+            }
+            @if (isBusyProcessUpdating)
+            {
+                <h2>Actualizando los datos de las obras desde el sistema externo...</h2>
+            }
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+        <div class="d-flex flex-row justify-content-between">
+            <h3>
+                Obras de la Provincia de La Pampa
+            </h3>
+            <div>
+                <label>Ultima fecha de actualización: <strong>@UltimaFechaActualizacion?.ToString("dd/MM/yyyy HH:mm")</strong></label>
+                <button type="button" class="btn btn-sm btn-secondary ms-1" @onclick=@EjecutarActualizacionClick>Ejecutar Actualización</button>
+            </div>
+        </div>
+        <div class="card mt-1">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <h4 class="card-title mb-0 p-1">B&uacute;squeda de Obras</h4>
+            </div>
+            <div class="card-body">
+                <div class="card-body p-0 mb-1">
+
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label class="form-label">Expediente:</label>
+                            <RadzenTextBox @bind-Value="@Model.Expediente" MaxLength="100" class="form-control" ></RadzenTextBox>
+                        </div>
+            
+                        <div class="col-sm-3">
+                
+                            <label class="form-label">Nombre:</label>
+                            <div>
+                                <RadzenTextBox @bind-Value="@Model.Nombre" MaxLength="1000" class="form-control"></RadzenTextBox>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+
+                            <label class="form-label">CUIT Empresa:</label>
+                            <div >
+                                <CustomRadzenNumeric TValue="decimal?"
+                                                     MaxIntegers="11"
+                                                     MaxDecimals="0"
+                                                     class="form-control"
+                                                     ShowUpDown="false"
+                                                     @bind-Value=@Model.CuitEmpresa
+                                                     Placeholder="11 dígitos sin guiones" />
+
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                
+                            <label class="form-label">Empresa:</label>
+                            <div>
+                                <RadzenTextBox @bind-Value="@Model.Empresa" MaxLength="100" class="form-control"></RadzenTextBox>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-violet" @onclick=@BuscarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">search</span>
+                                    <span>Buscar</span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-light ms-1" @onclick=@LimpiarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">filter_alt_off</span>
+                                    <span>Limpiar</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card mt-3">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <div class="d-flex flex-row justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">Listado de Obras</h4>
+                    </div>
+                    <div>
+
+                        <button type="button" class="btn btn-violet" @onclick=@AgregarClick>
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                                <span>Agregar Obra</span>
+                            </span>
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <div class="card-body p-0 mb-1">
+                    <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                        Cantidad de registros: @lstObras.Count()
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid @ref="grdObras"
+                                            Count="@lstObras.Count"
+                                            Data="@lstObras"
+                                            AllowSorting="true"
+                                            AllowPaging="false"
+                                            AllowColumnResize="true"
+                                            TItem="ObrasProvinciaLaPampaDTO"
+                                            IsLoading="@isBusyGrid">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="IdObraPciaLP" Title="Acciones"
+                                                          Sortable="false" Filterable="false" CssClass="text-center" HeaderCssClass="text-center" Width="100px">
+                                        <Template Context="data">
+                                            <div class="ps-1">
+
+                                                <RadzenButton Click="@(e => EditarClick(data))"
+                                                              data-toggle="tooltip"
+                                                              data-placement="top"
+                                                              title="Editar"
+                                                              Icon="edit"
+                                                              ButtonType="ButtonType.Button"
+                                                              ButtonStyle="ButtonStyle.Light">
+                                                </RadzenButton>
+
+                                                @if (!data.BajaLogica ?? false)
+                                                {
+                                                    <RadzenButton Click="@(e => EliminarClick(data))"
+                                                                  data-toggle="tooltip"
+                                                                  data-placement="top"
+                                                                  title="Eliminar"
+                                                                  Icon="delete"
+                                                                  ButtonType="ButtonType.Button"
+                                                                  ButtonStyle="ButtonStyle.Light" />
+                                                }
+                                            </div>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="Expediente" Title="Expediente" Filterable="false" Width="150px" />
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="ObraNombre" Title="Nombre" Filterable="false" />
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="EstadoObra" Title="Estado" Filterable="false" Width="150px" />
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="Licitante" Title="Licitante" Filterable="false" Width="180px" />
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="CoeficienteConceptual" Title="Coef. Concep." FormatString="{0:F2}" Filterable="false" Width="140px" CssClass="text-end pe-3" HeaderCssClass="text-end" />
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="FechaInformeCoeficiente" Title="Fecha Informe" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="130px" CssClass="text-end pe-3" HeaderCssClass="text-center" />
+                                    
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="EsAltaPorUsuario" Title="Ingreso por" Filterable="false" Width="120px" CssClass="text-center" HeaderCssClass="text-center">
+                                        <Template Context="data">
+                                            @if (data.EsAltaPorUsuario)
+                                            {
+                                                <label>Usuario</label>
+                                            }
+                                            @if (data.EsAltaPorProceso ?? false)
+                                            {
+                                                <label>Proceso</label>
+                                            }
+                                            
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="BajaLogica" Title="Baja"  Filterable="false" Width="80px" CssClass="text-center" HeaderCssClass="text-center">
+                                        <Template Context="data">
+                                            @if(data.BajaLogica ?? false)
+                                            {
+                                                <label>S&iacute;</label>
+                                            }
+                                            else
+                                            {
+                                                <label>No</label>
+                                            }
+                                        </Template>
+                                        </RadzenDataGridColumn>
+
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="CuitEmpresa" Title="CUIT Empresa" Filterable="false" Width="130px" />
+                                    <RadzenDataGridColumn TItem="ObrasProvinciaLaPampaDTO" Property="Empresa" Title="Empresa" Filterable="false" />
+
+
+                                </Columns>
+                                <EmptyTemplate>
+                                    <div class="d-flex flex-row align-items-center">
+                                        <span class="material-icons" style="font-size:64px; color:lightgray">
+                                            block
+                                        </span>
+                                        <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                                    </div>
+                                </EmptyTemplate>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </ContentTemplate>
+</SpinLoader>

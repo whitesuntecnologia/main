@@ -1,0 +1,157 @@
+﻿@page "/Tramites/BalanceGeneral/{Accion}/{IdentificadorUnico}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using StaticClass;
+@using Website.Pages.Shared
+@using BlazorPro.Spinkit
+
+@attribute [Authorize]
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 6",""}
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 6",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/{Accion}/{IdentificadorUnico}"},
+                  {$"Formulario 6",""}
+                  }) />
+}
+<hr class="mt-2 mb-2" />
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+        
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            <h2>Cargando...</h2>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="page-print">
+
+            <h3>
+                Tr&aacute;mite @tramite?.IdTramite - Balance General -
+                <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+            </h3>
+
+            <div class="card mt-3">
+                <div class="card-header pt-1 pb-1 navbar-button">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div>
+                            <h4 class="card-title mb-0">Estado de Situación Patrimonial al 31-12 de cada año o fecha de balance</h4>
+                        </div>
+                        <div>
+                            @if (PermiteEditar)
+                            {
+                                <button type="button" class="btn btn-violet" @onclick=@AgregarBalanceClick>
+                                    <span class="d-flex flex-row justify-content-between align-items-center">
+                                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                                        <span>Agregar Balance</span>
+                                    </span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <ul id="tabs" class="nav nav-tabs nav-bordered" >
+                    @{
+                        var i = 0;
+                        @foreach (var balanceModel in BalancesModel)
+                        {
+                            i++;
+                            <li class="nav-item">
+                                <a href="#tab_@balanceModel.IdTramiteBalanceGeneral.GetValueOrDefault()" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link @(i == 1 ? "active":"")">
+
+                            
+                                    <span class="d-flex flex-row">
+                                        <span class="me-3">@balanceModel.Anio</span>
+                                        @if (PermiteEditar)
+                                        {
+                                            <a href="#" style="padding: 0px;" title="Eliminar" @onclick=@( () => EliminarBalanceClick(balanceModel.Anio.GetValueOrDefault())) @onclick:preventDefault>
+                                                <span class="material-icons" style="font-size:18px;cursor:pointer; color:darkred">delete</span>
+                                            </a>
+                                        }
+                                    </span>
+                            
+                                </a>
+                        
+                            </li>
+                        }
+                    }
+                    </ul>
+                    <div class="tab-content">
+                    @{
+                        var j = 0;
+                        foreach (var balanceModel in BalancesModel)
+                        {
+                            j++;
+                            <div class="tab-pane @(j == 1 ? "active":"")" id="tab_@(balanceModel.IdTramiteBalanceGeneral)">
+                                <EditForm Model="@balanceModel">
+                                    <DataAnnotationsValidator />
+                                    <Blazored.FluentValidation.FluentValidationValidator />
+
+                                    @if (lstPerfiles.Exists(x => x.IdPerfil == Constants.Perfiles.Administrador) ||
+                                        lstPerfiles.Exists(x => x.IdPerfil == Constants.Perfiles.Evaluador))
+                                    {
+                                        <BalanceGeneralEvaluar 
+                                                            IdTramite="@(tramite?.IdTramite ?? 0)" 
+                                                            IdGrupoTramite="@(tramite?.IdGrupoTramite ?? 0)"
+                                                            Model="@EvaluarModel" 
+                                                            ReadOnly="@(!(EvaluandoTramite && PermiteEditar))"   />    
+                                    }
+                                    else
+                                    {
+                                        <BalanceGeneralDatos Model="@balanceModel" 
+                                                                ReadOnly="true"
+                                                                ButtonEditVisible="@(PermiteEditar)"
+                                                                OnEditClick="() => EditarBalanceClick(balanceModel.IdTramiteBalanceGeneral.GetValueOrDefault())">
+                                        </BalanceGeneralDatos>
+                                    }
+
+                                </EditForm>
+                        </div>
+                        }
+    }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        @if (tramite?.PermiteEditarFormulario(StaticClass.Constants.Formularios.BalanceGeneral) ?? false)
+        {
+                <FormEvaluacion IdentificadorUnico="@IdentificadorUnico"
+                                NroFormulario="6"
+                                OnGuardarClick="@GuardarEvaluacionClick"
+                                OnCancelarClick="@CancelarEvaluacionClick"
+                                Visible="@EvaluandoTramite">
+                </FormEvaluacion>
+            
+        }
+
+
+
+    </ContentTemplate>
+</SpinLoader>
+

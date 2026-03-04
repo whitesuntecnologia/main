@@ -1,0 +1,453 @@
+﻿@page "/Tramites/Visualizar/{IdentificadorUnico}"
+
+@using BlazorPro.Spinkit
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using StaticClass;
+@attribute [Authorize]
+
+
+<style>
+.product-title {
+    min-height: 72px;
+    background-color: var(--rz-secondary-lighter);
+}
+.price-badge {
+    font-weight: bold;
+    line-height: 20px;
+    padding: 7px;
+}
+</style>
+
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}","" },
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}","" },
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",""},
+                  }) />
+}
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            <h2>Cargando...</h2>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+        <div class="card mt-3">
+            <div class="card-header pt-1 pb-1 navbar-button" >
+                <div class="d-flex flex-row justify-content-between align-items-center" style="height:30px">
+                    <div>
+                        <h4 class="card-title mb-0">Informaci&oacute;n del tr&aacute;mite</h4>
+                    </div>
+                    <div>
+@*                         @if (isDebug)
+                        {
+                            <button type="button" class="btn btn-success" @onclick=@( () => ProbarCertificadoClick(Constants.TiposDeTramite.Reli_Inscripcion))>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">draw</span>
+                                    <span>Probar RELI Inscripcion</span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-success" @onclick=@( () => ProbarCertificadoClick(Constants.TiposDeTramite.Reli_Licitar))>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">draw</span>
+                                    <span>Probar RELI Licitar</span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-success" @onclick=@( () => ProbarCertificadoClick(Constants.TiposDeTramite.Reli_ActualizacionSoloTecnicos))>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">draw</span>
+                                    <span>Probar RELI Actualización</span>
+                                </span>
+                            </button>
+                           
+                            <button type="button" class="btn btn-success" @onclick=@(() => ProbarCertificadoClick(Constants.TiposDeTramite.Reco_Inscripcion))>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">draw</span>
+                                    <span>Probar RECO Inscripcion</span>
+                                </span>
+                            </button>
+                        } *@
+
+
+                        @if (tramite?.IdEstado == Constants.TramitesEstados.ElevadoParaLaFirma
+                        && lstPerfiles.Exists(x=> x.IdPerfil == Constants.Perfiles.Administrador))
+                        {
+                            <button type="button" class="btn btn-success" @onclick=@FirmarDocumentoClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">draw</span>
+                                    <span>Firmar Documento</span>
+                                </span>
+                            </button>
+                        }
+
+                        @if (tramite?.IdEstado == Constants.TramitesEstados.EnEvaluacion && EvaluandoTramite)
+                        {
+                            <button type="button" class="btn btn-info" @onclick=@PrevisualizarDocumentoClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">draw</span>
+                                    <span>Previsualizar Documento</span>
+                                </span>
+                            </button>
+
+                            <button type="button" class="btn btn-danger ms-1" @onclick=@RechazarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">close</span>
+                                    <span>Rechazar Trámite</span>
+                                </span>
+                            </button>
+                        }
+
+                        @if (btnAnularTramiteVisible)
+                        {
+                            <button type="button" class="btn btn-danger ms-1" @onclick=@AnularClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">close</span>
+                                    <span>Anular trámite</span>
+                                </span>
+                            </button>
+                        }
+
+                        @if (btnPresentarTramiteVisible)
+                        {
+                            <button type="button" class="btn btn-success ms-1" @onclick=@PresentarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">done</span>
+                                    <span>Presentar Informaci&oacute;n</span>
+                                </span>
+                            </button>
+                        }
+                        else if (btnAprobarNotificarTramiteVisible && EvaluandoTramite)
+                        {
+
+                            if (!isBusyAprobado)
+                            {
+
+
+                                <button type="button" class="@btnAprobarNotificarTramiteClass" @onclick=@AprobarNotificarClick >
+                                    <span class="d-flex flex-row justify-content-between align-items-center">
+                                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">done</span>
+                                        <span>@btnAprobarNotificarTramiteText</span>
+                                    </span>
+                                </button>
+                            }
+                            else
+                            {
+                                <Spinner1 Text="Procesando..."/>
+                            }
+                        }
+                        else if (tramite?.IdEstado == Constants.TramitesEstados.Aprobado  
+                            && tramite?.IdTipoTramite == Constants.TiposDeTramite.Reli_Licitar
+                            && lstPerfiles.Exists(x => x.IdPerfil == Constants.Perfiles.Administrador))
+                        {
+                            if (!isBusyActualizacion)
+                            {
+                                <button type="button" class="btn btn-success" @onclick=@ObtenerActualizacionClick>
+                                    <span class="d-flex flex-row justify-content-between align-items-center">
+                                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">cached</span>
+                                        <span>Obtener Actualización del Certificado</span>
+                                    </span>
+                                </button>
+                            }
+                            else
+                            {
+                                <Spinner1 Text="Procesando..." />
+                            }
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <div class="ps-1">
+                    <div>
+                        <label class="fs-5">Trámite Nro.: <strong class="rz-color-primary">@tramite?.IdTramite</strong></label>
+                    </div>
+                    <div class="mt-1">
+                        <label class="fs-5">Empresa: <strong class="rz-color-primary">@tramite?.CuitEmpresa - @tramite?.RazonSocial</strong></label>
+                    </div>
+                    <div class="mt-1">
+                        <label class="fs-5">Tipo de Trámite: <strong class="rz-color-primary">@tramite?.NombreTipoTramite</strong></label>
+                    </div>
+
+                    <div class="mt-1" >
+                        <label class="fs-5">Estado: <strong class="rz-color-primary">@tramite?.NombreEstado</strong></label>
+                    </div>
+
+                    @if(tramite != null && tramite.IdObraPciaLP.HasValue)
+                    {
+                        <div class="mt-1" >
+                            <label class="fs-5">Obra a Licitar: <strong class="rz-color-primary">@tramite?.NombreObraPciaLP</strong></label>
+                        </div>
+                    }
+                    @if (tramite?.IdEstado == Constants.TramitesEstados.EnEvaluacion)
+                    {
+                        <div class="mt-1">
+                            <label class="fs-5">
+                                Evaluador: <strong class="rz-color-primary">
+                                    @(string.IsNullOrWhiteSpace(tramite?.UsuarioAsignado) ? "Sin Asignar" :
+                                                                                                 (string.IsNullOrWhiteSpace(tramite?.EvaluadorAsignado) ? "Sin Nombre" : tramite?.EvaluadorAsignado))
+                                </strong>
+                            </label>
+                            @if(lstPerfiles.Select(s=> s.IdPerfil).Contains(Constants.Perfiles.Administrador))
+                            {
+                                <button type="button" class="btn btn-link p-0" @onclick=@ReAsignarClick>
+                                    <span class="d-flex flex-row justify-content-between align-items-center ms-2">
+                                        <span class="material-icons">
+                                            assignment_ind
+                                        </span>
+                                        <span>Re Asignar Evaluador</span>
+                                    </span>
+                                </button>
+                            }
+                        </div>
+                    }
+                    @if (tramite?.IdFileGEDO.HasValue ?? false)
+                    {
+                        <div class="mt-1">
+                            <label class="fs-5">Certificado:</label>
+
+                            <button type="button" class="btn btn-link p-0" @onclick=@(async () => await OnDownloadFileAsync(tramite?.IdFileGEDO ?? 0))>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-symbols-outlined me-1">
+                                        developer_guide
+                                    </span>
+                                    <span>@tramite.numeroGEDO</span>
+                                </span>
+                            </button>
+
+                        </div>
+                    }
+                    @if (tramite?.FechaVencimiento.HasValue ?? false)
+                    {
+                        <div class="mt-1">
+                            <label class="fs-5">Fecha de Vencimiento: <strong class="rz-color-primary">@tramite?.FechaVencimiento.Value.ToString("dd/MM/yyyy")</strong></label>
+                        </div>
+                    }
+
+                </div>
+
+                <div class="row mt-1">
+
+                    <RadzenDataList @ref="dlFormularios"
+                    WrapItems="true" 
+                    AllowPaging="false"
+                    Data="@lstFormularios" 
+                    TItem="ItemGrillaVisorTramiteDTO" 
+                    PagerHorizontalAlign="HorizontalAlign.Left" 
+                    ShowPagingSummary="true">
+                        <Template Context="formulario">
+                            <RadzenCard Style="width: 100%; padding: 0; overflow: hidden;">
+
+                                <div class="row align-items-center">
+                                    <div class="col-4 p-3 rz-background-color-primary-lighter">
+                                        <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-primary-lighter">@(formulario.DescripcionFormulario)</RadzenText>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="d-flex flex-row">
+                                            <div >
+                                                <label class="mt-1">Estado:</label>
+                                            </div>
+                                            <div class="ms-1">
+                                                @{
+                                                    var classColorLabel = "";
+                                                    var barStyle = ProgressBarStyle.Danger;
+                                                    var textLabel = "";
+                                                    if (formulario.PorcentajeAvance == 100) classColorLabel = "rz-color-success";
+                                                    if (formulario.PorcentajeAvance == 50) classColorLabel = "rz-color-warning";
+                                                    if (formulario.PorcentajeAvance == 0) classColorLabel = "rz-color-danger";
+                                                    if (formulario.PorcentajeAvance == 100) textLabel = "Presentado";
+                                                    if (formulario.PorcentajeAvance == 50) textLabel = "Guardado";
+                                                    if (formulario.PorcentajeAvance == 0) textLabel = "No iniciado";
+                                                    if (formulario.PorcentajeAvance == 100) barStyle = ProgressBarStyle.Success;
+                                                    if (formulario.PorcentajeAvance == 50) barStyle = ProgressBarStyle.Warning; 
+                                                    if (formulario.PorcentajeAvance == 0) barStyle = ProgressBarStyle.Danger; 
+
+                                                    <RadzenLabel Class="@classColorLabel" Style="font-weight:900" Text=@textLabel />
+                                                    <RadzenProgressBar ProgressBarStyle="@barStyle"
+                                                    @bind-Value="@formulario.PorcentajeAvance" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-2 p-3">
+                                        <button type="button" class="btn btn-light" @onclick=@( args => OnEditarClick(formulario) )>
+                                            <span class="d-flex flex-row justify-content-between align-items-center">
+
+                                                @if (EvaluandoTramite)
+                                                {
+                                                    if(tramite?.PermiteEditarFormulario((StaticClass.Constants.Formularios)formulario.NroFormulario) ?? false)
+                                                    {
+                                                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">edit</span>
+                                                        <span>Evaluar</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">visibility</span>
+                                                        <span>Visualizar</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (formulario.PermiteEditar)
+                                                    {
+                                                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">edit</span>
+                                                        <span>Editar</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">visibility</span>
+                                                        <span>Visualizar</span>
+                                                    }
+                                                }
+                                            </span>
+                                        </button>
+
+                                    </div>
+                            
+                            
+                                    @if(EvaluandoTramite)
+                                    {
+                                        <div class="col-3 p-3">
+                                            <div class="d-flex flex-row">
+                                                <div >
+                                                    <label class="mt-1">Estado Evaluación:</label>
+                                                </div>
+                                                <div class="ms-1 mt-1">
+
+                                                    @{
+                                                        var classColorLabelEE = "";
+                                                        if (formulario.IdEstadoEvaluacion.GetValueOrDefault() == (int) StaticClass.Constants.EstadosEvaluacion.Aprobar)
+                                                        {
+                                                        classColorLabelEE = "rz-color-success";
+                                                        }
+                                                        if (formulario.IdEstadoEvaluacion.GetValueOrDefault() == (int)StaticClass.Constants.EstadosEvaluacion.Notificar)
+                                                        {
+                                                        classColorLabelEE = "rz-color-danger";
+                                                        }
+                                                        <RadzenLabel Class="@classColorLabelEE" Style="font-weight:900" 
+                                                            Text=@(string.IsNullOrWhiteSpace(formulario.NombreEstadoEvaluacion) ? "No evaluado" : formulario.NombreEstadoEvaluacion) />
+                                                    }
+                                            
+                                                </div>
+                                                @if (formulario.IdEstadoEvaluacion.GetValueOrDefault() == (int)StaticClass.Constants.EstadosEvaluacion.Notificar)
+                                                {
+                                                    <div class="ms-2">
+                                                        <a @onclick=@(async () => await VerNotificacionClick(formulario)) title="Notificación">
+                                                            <span class="material-icons" style="cursor:pointer; font-size:30px;">
+                                                                chat
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                    else if(tramite?.IdEstado == (int) StaticClass.Constants.TramitesEstados.Observado)
+                                    {
+                                        @if (formulario.IdEstadoEvaluacion.GetValueOrDefault() == (int)StaticClass.Constants.EstadosEvaluacion.Notificar)
+                                        {
+                                            <div class="col-3 p-3">
+                                                <div class="d-flex flex-row">
+                                                    <div >
+                                                        <label class="mt-1">Notificación:</label>
+                                                    </div>
+                                        
+                                                    <div class="ms-2">
+                                                        <a @onclick=@(async () => await VerNotificacionClick(formulario)) title="Notificación">
+                                                            <span class="material-icons text-danger" style="cursor:pointer; font-size:30px;">
+                                                                chat
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                        }
+                                    }
+                            
+                                </div>
+                        
+                            </RadzenCard>
+
+                        </Template>
+                    </RadzenDataList>
+
+                    @if (tramite!.IdTipoTramite == Constants.TiposDeTramite.Reli_Licitar)
+                    {
+                        <EditForm Model="@UteModel" OnSubmit="OnClickGuardarUte">
+                            <Blazored.FluentValidation.FluentValidationValidator />
+
+                            <div class="alert alert-info m-2">
+
+                                <div class="d-flex gap-1 align-items-center">
+
+                                    <div>
+                                        <RadzenLabel Text="Se presenta en UTE:" Component="chkSinDatos" class="me-1" />
+                                        <RadzenCheckBox @bind-Value=@UteModel.SePresentaEnUte
+                                                        name="chkSinDatos"
+                                                        Disabled="@(!tramite!.PermiteEditarEmpresa )" />
+                                        <ValidationMessage For="() => UteModel.SePresentaEnUte" />
+                                    </div>
+                                
+                                    <div class="d-flex ms-3 align-items-center">
+                                        <RadzenLabel Text="Porcentaje de Participacion:" class="me-1" />
+                                        <NumericBox TValue="decimal?" MaxIntegers="3" MaxDecimals="2" class="rz-textbox form-control"
+                                         Style="width:100px" 
+                                         @bind-Value=@UteModel.PorcParticipUte
+                                         Disabled="@(!tramite.PermiteEditarEmpresa)" />
+                                        <ValidationMessage For="() => UteModel.PorcParticipUte" />
+                                    </div>
+
+
+                                    @if (tramite!.PermiteEditarEmpresa)
+                                    {
+                                        if (!isBusyGuardarUte)
+                                        {
+                                            <div class="d-flex flex-row justify-content-end">
+                                                <button type="submit" class="btn btn-success ms-1" style="width:120px">Guardar</button>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex flex-row justify-content-end">
+                                                <Spinner1 Text="Guardando..." />
+                                            </div>
+
+                                        }
+                                    }
+                                </div>
+                            </div> 
+                        </EditForm>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <Website.Pages.Shared.HistorialObservacionesComponent IdentificadorUnico="@tramite!.IdentificadorUnico" />
+    
+    </ContentTemplate>
+</SpinLoader>

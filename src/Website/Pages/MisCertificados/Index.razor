@@ -1,0 +1,57 @@
+﻿@page "/MisCertificados"
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles="Empresa")]
+
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {"Mis Certificados",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+<h3 class="mt-1">Mis Certificados</h3>
+
+<div class="row">
+    <div class="col-6">
+        <label>Lista de certificados</label>
+    </div>
+    <div class="col-6 text-end">
+        <label>Cantidad de registros: @lstCertificados.Count()</label>
+    </div>
+</div>
+
+<div class="row mt-1">
+    <div class="col-12">
+        <RadzenDataGrid @ref="grdCertificados"
+                        Count="@lstCertificados.Count"
+                        Data="@lstCertificados"
+                        AllowSorting="true"
+                        AllowPaging="true"
+                        AllowColumnResize="true"
+                        PageSize="20"
+                        TItem="ItemGrillaMisCertificadosDTO">
+
+            <Columns>
+
+                <RadzenDataGridColumn TItem="ItemGrillaMisCertificadosDTO" Property="IdTramite" Title="Nro. Trámite" Width="130px" />
+                <RadzenDataGridColumn TItem="ItemGrillaMisCertificadosDTO" Property="NombreTipoTramite" Title="Tipo Trámite" Width="230px" />
+                <RadzenDataGridColumn TItem="ItemGrillaMisCertificadosDTO" Property="numeroGEDO" Title="número oficial"  />
+                <RadzenDataGridColumn TItem="ItemGrillaMisCertificadosDTO" Property="IdTramite" Title="Descargar" Sortable="false" Filterable="false" CssClass="text-center" Width="120px">
+                    <Template Context="data">
+
+                        <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFileGEDO)) title="Descargar">
+                            <span class="material-icons" style="cursor:pointer; font-size:30px; color: cornflowerblue">
+                                cloud_download
+                            </span>
+                        </a>
+
+                    </Template>
+                </RadzenDataGridColumn>
+
+            </Columns>
+            <EmptyTemplate>
+                <p>No hay registros</p>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+    </div>
+
+</div>

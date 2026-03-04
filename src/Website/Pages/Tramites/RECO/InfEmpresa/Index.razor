@@ -1,0 +1,744 @@
+﻿@page "/Tramites/DocumentacionObligatoriaConsultores/{Accion}/{IdentificadorUnico}"
+@using Website.Models.Formulario
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Pages.Shared
+@using DataTransferObject;
+@attribute [Authorize]
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 2 y 3",""}
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 2 y 3",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/{Accion}/{IdentificadorUnico}"},
+                  {$"Formularios 2 y 3",""}
+                  }) />
+}
+
+
+<hr class="mt-2 mb-2" />
+
+<h3>Tr&aacute;mite @tramite?.IdTramite - Informaci&oacute;n de la empresa - 
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+
+
+
+<EditForm Model="@Model" OnSubmit="OnClickGuardar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+  
+     @*Informacion de la empresa*@
+    <div class="card">
+        <div class="card-header navbar-button pt-2 pb-2">
+            <h4 class="card-title mb-0">Información de la Empresa</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <span class="col-3 col-form-label text-end">Tipo de Empresa:</span>
+                <div class="col-9">
+                    <RadzenRadioButtonList @bind-Value=@Model.TipoEmpresa 
+                            TValue="int" 
+                            Orientation="Orientation.Horizontal" 
+                            class="mt-1" 
+                            Gap="3" 
+                            Disabled="@(!PermiteEditar)">
+                            <Items>
+                                <RadzenRadioButtonListItem Text="Unipersonal" Value="1" />
+                                <RadzenRadioButtonListItem Text="Sociedad" Value="2" />
+                            </Items>
+                    </RadzenRadioButtonList>
+                    <div>
+                        <ValidationMessage For="() => Model.TipoEmpresa" />
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <span class="col-3 col-form-label text-end">Denominación o Razón Social:</span>
+                <div class="col-9">
+                    <RadzenTextBox class="w-100"
+                                   @bind-value=@Model.RazonSocial
+                                   MaxLength="150"
+                                   Disabled="@(!PermiteEditar)" />
+
+                    <div>
+                        <ValidationMessage For="() => Model.RazonSocial" />
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.TipoEmpresa != 1)
+            {
+                <div class="row mt-2">
+                    <span class="col-3 col-form-label text-end">Tipo de Sociedad:</span>
+                    <div class="col-9">
+                        <CustomRadzenDropDown Style="width:500px"
+                        Name="ddlTipoSociedad"
+                        AllowFiltering=false
+                        TextProperty="Descripcion"
+                        ValueProperty="Id"
+                        Data="@lstTiposDeSociedad"
+                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        Disabled="@(!PermiteEditar)"
+                        @bind-Value="@Model.IdTipoSociedad" />
+
+                        <div>
+                            <ValidationMessage For="() => Model.IdTipoSociedad" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-3 text-end">
+                        <label class="col-form-label">Contrato Social:</label>
+                        <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                    </div>
+                    <div class="col-9">
+                        <CustomFileUpload @ref="uploadCS"
+                        OnFileUploaded="HandleFileUploadedCS"
+                        OnFileDeleted="HandleFileDeletionRequestedCS"
+                        OnError="HandleErrorCS"
+                        OnProgress="OnProgressCS"
+                        Files="@lstFilesCS"
+                        ReadOnly="@(!PermiteEditar)"
+                        Accept="application/pdf,">
+                        </CustomFileUpload>
+                        <ValidationMessage For="() => Model.IdFileContrato" />
+                    </div>
+                </div>
+
+                <div class="row mt-1">
+                    <div class="col-3 text-end">
+                        <label class="col-form-label">Estatuto:</label>
+                        <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                    </div>
+                    <div class="col-9">
+                        <CustomFileUpload @ref="uploadEs"
+                        OnFileUploaded="HandleFileUploadedEs"
+                        OnFileDeleted="HandleFileDeletionRequestedEs"
+                        OnError="HandleErrorEs"
+                        OnProgress="OnProgressEs"
+                        Files="@lstFilesEs"
+                        ReadOnly="@(!PermiteEditar)"
+                        Accept="application/pdf,">
+                        </CustomFileUpload>
+                        <ValidationMessage For="() => Model.IdFileEstatuto" />
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @if (Model.TipoEmpresa != 1)
+    {
+        <div class="card">
+            <div class="card-header navbar-button pt-2 pb-2">
+                <h4 class="card-title mb-0">Inscripción en el registro público de comercio:</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mt-2">
+                    <span class="col-3 col-form-label text-end">De:</span>
+                    <div class="col-9">
+                        <RadzenTextBox class="w-100"
+                                       @bind-value=@Model.DeRegComercio
+                                       MaxLength="100"
+                                       Disabled="@(!PermiteEditar)" />
+
+                        <div>
+                            <ValidationMessage For="() => Model.DeRegComercio" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <span class="col-3 col-form-label text-end">Fecha:</span>
+                    <div class="col-9">
+                        <RadzenDatePicker TValue="DateTime?"
+                                          DateFormat="d"
+                                          @bind-Value=@Model.FechaRegComercio
+                                          Disabled="@(!PermiteEditar)" />
+                    
+                        <div>
+                            <ValidationMessage For="() => Model.FechaRegComercio" />
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="row mt-2">
+                    <span class="col-3 col-form-label text-end">Libro:</span>
+                    <div class="col-9 ">
+                        <div class="d-flex">
+                        <RadzenTextBox Style="width:150px"
+                                       @bind-value=@Model.LibroRegComercio
+                                       MaxLength="30"
+                                       Disabled="@(!PermiteEditar)" />
+                    
+                        <span class="col-form-label ms-2 pe-2">Tomo:</span>
+                        <RadzenTextBox Style="width:150px"
+                                       @bind-value=@Model.TomoRegComercio
+                                       MaxLength="30"
+                                       Disabled="@(!PermiteEditar)" />
+                        <span class="col-form-label ms-2 pe-2">Folio:</span>
+                        <RadzenTextBox Style="width:150px"
+                                       @bind-value=@Model.FolioRegComercio
+                                       MaxLength="30"
+                                       Disabled="@(!PermiteEditar)" />
+                        </div>
+                        <div>
+                            <ValidationMessage For="() => Model.LibroRegComercio" />
+                            <ValidationMessage For="() => Model.TomoRegComercio" />
+                            <ValidationMessage For="() => Model.FolioRegComercio" />
+                        </div>
+                    </div>
+                
+
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-3 text-end">
+                        <label class="col-form-label">Registro de Comercio:</label>
+                        <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                    </div>
+                    <div class="col-9">
+                        <CustomFileUpload @ref="uploadRC"
+                                          OnFileUploaded="HandleFileUploadedRC"
+                                          OnFileDeleted="HandleFileDeletionRequestedRC"
+                                          OnError="HandleErrorRC"
+                                          OnProgress="OnProgressRC"
+                                          Files="@lstFilesRC"
+                                          ReadOnly="@(!PermiteEditar)"
+                                          Accept="application/pdf,">
+                        </CustomFileUpload>
+                        <ValidationMessage For="() => Model.IdFileRegComercio" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header navbar-button pt-2 pb-2">
+                <h4 class="card-title mb-0">Duración de la sociedad:</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mt-2">
+                    <span class="col-3 col-form-label text-end">Años:</span>
+                    <div class="col-9">
+                        <NumericBox TValue="int?"
+                                    MaxIntegers="2"
+                                    MaxDecimals="0"
+                                    class="rz-textbox form-control"
+                                    Style="width:300px"
+                                    @bind-Value=@Model.AniosDuracionSoc
+                                    Disabled="@(!PermiteEditar)" />
+
+                        <div>
+                            <ValidationMessage For="() => Model.AniosDuracionSoc" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <span class="col-3 col-form-label text-end">Fecha de Constitución:</span>
+                    <div class="col-9">
+                        <RadzenDatePicker TValue="DateTime?"
+                                          DateFormat="d"
+                                          @bind-Value=@Model.FechaConstitucionSoc
+                                          Disabled="@(!PermiteEditar)" />
+
+                        <div>
+                            <ValidationMessage For="() => Model.FechaConstitucionSoc" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <span class="col-3 col-form-label text-end">Fecha de Vencimiento:</span>
+                    <div class="col-9">
+                        <RadzenDatePicker TValue="DateTime?"
+                                          DateFormat="d"
+                                          @bind-Value=@Model.FechaVencimientoSoc
+                                          Disabled="@(!PermiteEditar)" />
+
+                        <div>
+                            <ValidationMessage For="() => Model.FechaVencimientoSoc" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <span class="col-3 col-form-label text-end">Prorroga de Plazo:</span>
+                    <div class="col-9">
+                        <RadzenTextBox class="w-100"
+                                       @bind-value=@Model.ProrrogaDePlazoSoc
+                                       MaxLength="100"
+                                       Disabled="@(!PermiteEditar)" />
+
+                        <div>
+                            <ValidationMessage For="() => Model.ProrrogaDePlazoSoc" />
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header pt-2 pb-2 navbar-button">
+                <div class="d-flex flex-row justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">Nómina de Socios Directores etc., que tienen uso de firma</h4>
+                    </div>
+                    <div>
+                        @if (PermiteEditar)
+                        {
+                            <button type="button" class="btn btn-violet" @onclick=@AgregarNominaClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                                    <span>Agregar Persona</span>
+                                </span>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                    Cantidad de registros: @Model.Personas.Count()
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <RadzenDataGrid @ref="grdNominaPersonas"
+                                        Count="@Model.Personas.Count"
+                                        Data="@Model.Personas"
+                                        AllowSorting="true"
+                                        AllowPaging="false"
+                                        AllowColumnResize="true"
+                                        TItem="InfEmpresaConsultoraPersonaModel">
+                            <Columns>
+
+                                <RadzenDataGridColumn TItem="InfEmpresaConsultoraPersonaModel" Property="Apellidos" Title="Apellido/s" Filterable="false" />
+                                <RadzenDataGridColumn TItem="InfEmpresaConsultoraPersonaModel" Property="Nombres" Title="Nombre/s" Filterable="false" />
+                                <RadzenDataGridColumn TItem="InfEmpresaConsultoraPersonaModel" Property="DescripcionTipoCaracterLegal" Title="Caracter" Filterable="false" />
+                                <RadzenDataGridColumn TItem="InfEmpresaConsultoraPersonaModel" Property="NroDni" Title="D.N.I." Filterable="false" FormatString="{0:N0}" />
+                                <RadzenDataGridColumn TItem="InfEmpresaConsultoraPersonaModel" Property="IdNominaPersona" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="130px">
+                                    <Template Context="data">
+                                        <div class="ps-1">
+                                            <RadzenButton Click="@(e => EliminarNominaClick(data))"
+                                                          data-toggle="tooltip"
+                                                          data-placement="top"
+                                                          title="Eliminar"
+                                                          Icon="delete"
+                                                          ButtonType="ButtonType.Button"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Visible="@PermiteEditar" />
+
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                            </Columns>
+                            <EmptyTemplate>
+                                <div class="d-flex flex-row align-items-center">
+                                    <span class="material-icons" style="font-size:64px; color:lightgray">
+                                        block
+                                    </span>
+                                    <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                                </div>
+                            </EmptyTemplate>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-3 text-end">
+                        <label class="col-form-label">Acta de designación de autoridades:</label>
+                        <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                    </div>
+                    <div class="col-9">
+                        <CustomFileUpload @ref="uploadAD"
+                                          OnFileUploaded="HandleFileUploadedAD"
+                                          OnFileDeleted="HandleFileDeletionRequestedAD"
+                                          OnError="HandleErrorAD"
+                                          OnProgress="OnProgressAD"
+                                          Files="@lstFilesAD"
+                                          ReadOnly="@(!PermiteEditar)"
+                                          Accept="application/pdf,">
+                        </CustomFileUpload>
+                        <ValidationMessage For="() => Model.IdFileActaDesignacion" />
+                    </div>  
+                </div>
+
+            </div>
+        </div>
+    }
+
+    @* Como contribuyente de: *@
+    <div class="card">
+        <div class="card-header navbar-button pt-2 pb-2">
+            <h4 class="card-title mb-0">Como contribuyente de:</h4>
+        </div>
+        <div class="card-body">
+
+            <h4>Ingresos Brutos:</h4>
+            <hr class="mt-2" />
+            <div class="row mt-2">
+                <div class="d-flex">
+                    <RadzenRadioButtonList 
+                    @bind-Value=@Model.TipoIibb 
+                    TValue="int" 
+                    Orientation="Orientation.Horizontal"
+                    Disabled="@(!PermiteEditar)"
+                    Change="@OnTipoIibbChanged">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Obligados Directos" Value="1" />
+                            <RadzenRadioButtonListItem Text="Convenio Multilateral" Value="2" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                    <ValidationMessage For="() => Model.TipoIibb" />
+                </div>
+                <div class="d-flex mt-3">
+                    <span class="col-form-label pe-2">Número de Ingresos brutos:</span>
+                    <div>
+
+                        <RadzenMask @bind-Value="@Model.NroIibb"
+                        Mask="***********"
+                        CharacterPattern="[0-9]"
+                        class="form-control"
+                        Style="width:200px"
+                        Disabled="@(!PermiteEditar || Model.TipoIibb == 0)">
+                        </RadzenMask>
+                        <ValidationMessage For="() => Model.NroIibb" />
+                    </div>
+                    <span class="col-form-label ms-2 pe-2">Fecha de Inscripción:</span>
+                    <div>
+                        <RadzenDatePicker TValue="DateTime ?"
+                        DateFormat="d"
+                        @bind-Value=@Model.FechaInscripcionIibb
+                                          Disabled="@(!PermiteEditar || Model.TipoIibb == 0)" />
+
+                        <ValidationMessage For="() => Model.FechaInscripcionIibb" />
+                    </div>
+                </div>
+
+            </div>
+
+            <h4 class="mt-4">Impuesto al Valor Agregado:</h4>
+            <hr class="mt-2" />
+
+            <div class="row mt-2">
+                <div class="d-flex">
+                    <RadzenRadioButtonList 
+                    @bind-Value=@Model.TipoIva 
+                    TValue="int" 
+                    Orientation="Orientation.Horizontal"
+                    Disabled="@(!PermiteEditar)" >
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Impuesto al Valor Agregado" Value="1" />
+                            <RadzenRadioButtonListItem Text="Monotributo" Value="2" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                    <ValidationMessage For="() => Model.TipoIva" />
+                </div>
+                <div class="d-flex mt-3">
+                    <span class="col-form-label pe-2">C.U.I.T.:</span>
+                    <div>
+                        <RadzenMask @bind-Value="@Model.Cuit"
+                        Mask="**-********-*" 
+                        CharacterPattern="[0-9]"
+                        Placeholder="00-00000000-0"
+                        class="form-control"
+                        Style="width:200px"
+                        Disabled="@(!PermiteEditar)">
+                        </RadzenMask>
+                        <ValidationMessage For="() => Model.Cuit" />
+                    </div>
+                    <span class="col-form-label ms-2 pe-2">Fecha de Inscripción:</span>
+                    <div>
+                        <RadzenDatePicker TValue="DateTime ?"
+                        DateFormat="d"
+                        @bind-Value=@Model.FechaInscripcionIva
+                        Disabled="@(!PermiteEditar)" />
+
+                        <ValidationMessage For="() => Model.FechaInscripcionIva" />
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="mt-4">Otros Impuestos:</h4>
+            <hr class="mt-2" />
+            <div class="row mt-2">
+                <div class="d-flex">
+                    <span class="col-form-label pe-2">Especifique (opcional):</span>
+                    <RadzenTextBox class="w-100"
+                    @bind-value=@Model.OtrosImpuestos
+                    MaxLength="150"
+                    Disabled="@(!PermiteEditar)" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @* Documentación *@
+    <div class="card mt-3">
+        <div class="card-header pt-2 pb-2 navbar-button">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0">Documentación Complementaria y Obligatoria</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                Cantidad de registros: @lstTiposDeDocumentos.Count
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid @ref="grdDocumentos"
+                                    Count="@lstTiposDeDocumentos.Count"
+                                    Data="@lstTiposDeDocumentos"
+                                    AllowSorting="true"
+                                    AllowPaging="false"
+                                    AllowColumnResize="true"
+                                    CellRender="CellRender"
+                                    TItem="InfEmpresaConsultoraDocumentoModel">
+
+                        <Columns>
+
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDocumentoModel" Property="Descripcion" Title="Tipo de Documento" Filterable="false" />
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDocumentoModel" Width="100px" Title="Obligatorio" Sortable="false" Filterable="false"
+                                                  CssClass="text-right col-grid-right text-center"
+                                                  HeaderCssClass="text-center col-grid-right-x4">
+                                <Template Context="data">
+                                    <label>@(data.Obligatorio ? "Sí" : "No")</label>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+
+
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDocumentoModel" Property="Filename" Title="Nombre de Archivo" Filterable="false" />
+
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDocumentoModel" Width="100px" Title="Tamaño" Sortable="false" Filterable="false"
+                                                  CssClass="text-right col-grid-right text-center"
+                                                  HeaderCssClass="text-center col-grid-right-x4">
+                                <Template Context="data">
+                                    <label>@data.SizeStr</label>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDocumentoModel" Width="80px" Title="Archivo" Sortable="false"
+                                                  Filterable="false" CssClass="text-right col-grid-right text-center"
+                                                  HeaderCssClass="text-center col-grid-right-x4">
+                                <Template Context="data">
+
+                                    @if (!IsBusyDownloadDoc)
+                                    {
+                                        if (data.IdFile.HasValue)
+                                        {
+                                            <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFile.Value)) title="Descargar">
+                                                <span class="material-icons" style="cursor:pointer; font-size:30px; color: cornflowerblue">
+                                                    cloud_download
+                                                </span>
+                                            </a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDocumentoModel" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="130px">
+                                <Template Context="data">
+                                    <div class="ps-1">
+
+                                        @if (data.IdFile.HasValue)
+                                        {
+                                            <RadzenButton Click="@(e => EliminarDocumentoClick(data))"
+                                                          data-toggle="tooltip"
+                                                          data-placement="top"
+                                                          title="Eliminar"
+                                                          Icon="delete"
+                                                          ButtonType="ButtonType.Button"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Visible="@(PermiteEditar)" />
+                                        }
+                                        else
+                                        {
+                                            <RadzenButton Click="@(e => AgregarDocumentoClick(data))"
+                                                          data-toggle="tooltip"
+                                                          data-placement="top"
+                                                          title="Subir Archivo"
+                                                          Icon="file_upload"
+                                                          ButtonType="ButtonType.Button"
+                                                          class="btn btn-violet"
+                                                          Visible="@(PermiteEditar)" />
+                                        }
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                        <EmptyTemplate>
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="material-icons" style="font-size:64px; color:lightgray">
+                                    block
+                                </span>
+                                <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                            </div>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    @*Informacion de las deudas de la empresa*@
+
+    <div class="card mt-3">
+        <div class="card-header pt-2 pb-2 navbar-button">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0">Declaraci&oacute;n de Estado de Deuda (BCRA)</h4>
+                </div>
+                <div>
+                    @if(PermiteEditar || EvaluandoTramite)
+                    {
+                        <button type="button" class="btn btn-violet" @onclick=@AgregarDeudaClick>
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                                <span>Agregar Deuda</span>
+                            </span>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                Cantidad de registros: @Model.Deudas.Count()
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid @ref="grdDeudas"
+                    Count="@Model.Deudas.Count"
+                    Data="@Model.Deudas"
+                    AllowSorting="true"
+                    AllowPaging="false"
+                    AllowColumnResize="true"
+                                    TItem="InfEmpresaConsultoraDeudaModel">
+                        <Columns>
+
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDeudaModel" Property="Entidad" Title="Entidad" Filterable="false" />
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDeudaModel" Property="Periodo" Title="Período" Filterable="false" />
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDeudaModel" Property="Situacion" Title="Situación" Filterable="false" />
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDeudaModel" Property="Monto" Title="Monto" Filterable="false" FormatString="{0:C}" />
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDeudaModel" Property="DiasDeAtraso" Title="Días de atraso" Filterable="false" />
+
+                            <RadzenDataGridColumn TItem="InfEmpresaConsultoraDeudaModel" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="130px" TextAlign="TextAlign.Center">
+                                <Template Context="data">
+                                    <div class="ps-1">
+                                        <RadzenButton Click="@(e => EditarDeudaClick(data))"
+                                                      data-toggle="tooltip"
+                                                      data-placement="top"
+                                                      title="Editar"
+                                                      Icon="edit"
+                                                      ButtonType="ButtonType.Button"
+                                                      ButtonStyle="ButtonStyle.Light"
+                                                      Visible="@(PermiteEditar || EvaluandoTramite)" />
+
+                                        <RadzenButton class="ms-1"
+                                            Click="@(e => EliminarDeudaClick(data))"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="Eliminar"
+                                            Icon="delete"
+                                            ButtonType="ButtonType.Button"
+                                            ButtonStyle="ButtonStyle.Light"
+                                            Visible="@(PermiteEditar || EvaluandoTramite)" />
+
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                        <EmptyTemplate>
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="material-icons" style="font-size:64px; color:lightgray">
+                                    block
+                                </span>
+                                <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                            </div>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-3 text-end">
+                    <label class="col-form-label">Constancia Situación BCRA:</label>
+                    <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                </div>
+                <div class="col-9">
+                    <CustomFileUpload @ref="uploadCB"
+                                      OnFileUploaded="HandleFileUploadedCB"
+                                      OnFileDeleted="HandleFileDeletionRequestedCB"
+                                      OnError="HandleErrorCB"
+                                      OnProgress="OnProgressCB"
+                                      Files="@lstFilesCB"
+                                      ReadOnly="@(!PermiteEditar)"
+                                      Accept="application/pdf,">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.IdFileConstanciaBcra" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-1">
+        <div class="col-md-12 text-end">
+            @if (PermiteEditar)
+            {
+                if (!IsBusyGuardar)
+                {
+                    <button type="submit" class="btn btn-success" style="width:120px">Guardar</button>
+                }
+                else
+                {
+                    <div class="spinner-border text-pink" role="status"></div>
+                }
+            }
+        </div>
+    </div>
+</EditForm>
+
+@if (tramite?.PermiteEditarFormulario(StaticClass.Constants.Formularios.InformacionEmpresa) ?? false)
+{
+    <FormEvaluacion 
+        IdentificadorUnico="@IdentificadorUnico" 
+        NroFormulario="2"
+        OnGuardarClick="GuardarEvaluacionClick"
+        OnCancelarClick="CancelarEvaluacionClick"
+        Visible="@EvaluandoTramite"
+        >
+    </FormEvaluacion>
+
+}

@@ -1,0 +1,269 @@
+﻿@inherits InputBase<TValue>
+@typeparam TValue
+@using System.Globalization
+@using System.Text.RegularExpressions
+@using System.ComponentModel;
+
+<input @ref=@ctl
+       @attributes="@AdditionalAttributes"
+       class="@CssClass"
+       value="@stringValue"
+       disabled="@Disabled"
+       @oninput="OnInput" 
+       />
+
+@code {
+    #pragma warning disable BL0007
+
+    [Parameter]
+    public int MaxIntegers { get => maxIntegers; set { SetMaxIntegers(value); maxIntegers = value; } }
+    [Parameter]
+    public int MaxDecimals
+    {
+        get => maxDecimals;
+        set
+        {
+            if (maxDecimals != value)
+            {
+                SetMaxDecimals(value);
+                maxDecimals = value;
+            }
+        }
+    }
+    [Parameter]
+    public bool Unsigned { get => unsigned; set => SetUnsigned(value); }
+    [Parameter]
+    public TValue? MaxValue { get => maxValue; set { SetMaxValue(value); maxValue = value; } }
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    #pragma warning restore BL0007
+
+    [Inject] IJSRuntime JS { get; set; } = null!;
+    protected IJSObjectReference module = null!;
+    protected Queue<Action> queue = new();
+
+    ElementReference ctl;
+
+    private string stringValue = "";
+    private string _currentValue = string.Empty;
+    private int maxIntegers;
+    private int maxDecimals;
+    private TValue? maxValue;
+    private bool unsigned = true;
+    private string FormatString { get; set; } = "#,##0.##";
+
+    // Sets up the initial value of the input
+    protected override async Task OnInitializedAsync()
+    {
+        this.stringValue = this.FormatValueAsString(this.Value) ?? "";
+
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/NumericBox.js");
+        if (module is not null)
+        {
+            await module.InvokeAsync<bool>("initializeInput", ctl.Id, false);
+            SetMaxIntegers(maxIntegers);
+            SetMaxDecimals(maxDecimals);
+            SetUnsigned(unsigned);
+            if (maxValue != null)
+                SetMaxValue(maxValue);
+
+        }
+        await base.OnInitializedAsync();
+    }
+    protected override Task OnParametersSetAsync()
+    {
+        if (this.Value != null)
+        {
+            this.stringValue = this.FormatValueAsString(this.Value) ?? "";
+        }
+        else
+        {
+            this.stringValue = "";
+        }
+        StateHasChanged();
+        return base.OnParametersSetAsync();
+    }
+    
+    // The Renderer still thinks the value of the input is what we last set it to, not what the user has just typed
+    // So we need to con the Renderer that the value is something else first before we set it properly.
+    // The diffing engine then sees the change and updatea the browser
+    // we use a task based event handler so we get two render events, one on the first yield and one on completion
+    private async Task OnInput(ChangeEventArgs e)
+    {
+
+        _currentValue = e.Value?.ToString() ?? "";
+
+        await Task.Yield();
+        var val = GetNumbers(_currentValue);
+
+        if (BindConverter.TryConvertTo<TValue>(val, CultureInfo.GetCultureInfo("es-AR"), out TValue? value))
+        {
+            //Esta propiedad hace que cambie el valor del bind asignado.
+            this.CurrentValue = value;
+        }
+        else
+        {
+            stringValue = "";
+            this.CurrentValue = default;
+        }
+        
+        StateHasChanged();
+    }
+
+    // Necessary override for InputBase
+    protected override bool TryParseValueFromString(string? value, out TValue? result, out string validationErrorMessage)
+    {
+
+        if (BindConverter.TryConvertTo<TValue?>(value, CultureInfo.GetCultureInfo("es-AR"), out result))
+        {
+            validationErrorMessage = null!;
+            return true;
+        }
+        else
+        {
+            validationErrorMessage = "No fue posible parsear el número";
+            return false;
+        }
+    }
+
+    // retornar solo los números y la comas
+    private static string GetNumbers(string input)
+        => new string(input.Where(c => (char.IsDigit(c)) || c.Equals(',')).ToArray());
+
+    protected override string? FormatValueAsString(TValue? value)
+    {
+        string val = null!;
+
+        //use Regex to see if we have a decimal with or without trailing zeros
+        // We need to detect these as ToString() will ignore them.
+        var reg = new Regex(@"(\.0*)$");
+        Match match = null!;
+        if (value != null)
+            match = reg.Match(value.ToString() ?? "");
+        var hasDecimal = match?.Success ?? false;
+        string decimals = hasDecimal
+            ? match?.Groups[1].Value ?? ""
+            : string.Empty;
+
+        // Avoiding a cast to IFormattable to avoid boxing.
+        switch (value)
+        {
+            case null:
+                return null;
+
+            case int @int:
+                return @int.ToString(this.FormatString);
+
+            case long @long:
+                return @long.ToString(this.FormatString);
+
+            case short @short:
+                return @short.ToString(this.FormatString);
+
+            case float @float:
+                val = @float.ToString(this.FormatString);
+                break;
+
+            case double @double:
+                val = @double.ToString(this.FormatString);
+                break;
+
+            case decimal @decimal:
+                val = @decimal.ToString(this.FormatString);
+                break;
+            case object @object:
+                val = Convert.ToDecimal(@object).ToString(this.FormatString);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported type {value.GetType()}");
+        }
+        return hasDecimal ? $"{val}{decimals}" : val;
+    }
+
+    private async void SetMaxValue(TValue? value)
+    {
+        if (value is null)
+            return;
+
+        if (module is null)
+        {
+            queue.Enqueue(() => SetMaxValue(value));
+            return;
+        }
+
+        var success = await module.InvokeAsync<bool>("setMaxValue", ctl.Id, value);
+
+        
+    }
+
+    private async void SetMaxDecimals(int value)
+    {
+        maxDecimals = value;
+        if (module is null)
+        {
+            queue.Enqueue(() => SetMaxDecimals(value));
+            return;
+        }
+
+        try
+        {
+            var success = await module.InvokeAsync<bool>("setMaxDecimals", ctl.Id, value);
+
+            if(success)
+            {
+                if (value > 0)
+                    this.FormatString = "#,##0.#" + new string(Convert.ToChar("#"), value - 1);
+                else
+                    this.FormatString = "#,##0.#";
+
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private async void SetMaxIntegers(int value)
+    {
+        maxIntegers = value;
+
+        if (module is null)
+        {
+            queue.Enqueue(() => SetMaxIntegers(value));
+            return;
+        }
+
+        try
+        {
+            var success = await module.InvokeAsync<bool>("setMaxIntegers", ctl.Id, value);
+        }
+        catch (Exception)
+        {
+
+        }
+
+    }
+    private async void SetUnsigned(bool value)
+    {
+        unsigned = value;
+        if (module is null)
+        {
+            queue.Enqueue(() => SetUnsigned(value));
+            return;
+        }
+
+        try
+        {
+            var success = await module.InvokeAsync<bool>("setUnsigned", ctl.Id, value);
+ 
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+    
+}

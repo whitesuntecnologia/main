@@ -1,0 +1,123 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@using Website;
+
+@namespace Website.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="~/" />
+    <link href="css/site.css" rel="stylesheet" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+
+    <!-- Codefox -->
+    <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" id="app-default-stylesheet" />
+    <link href="assets/css/app-dark.min.css" rel="stylesheet" type="text/css" id="app-dark-stylesheet" />
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bs-default-stylesheet" /> 
+    <link href="assets/css/bootstrap-dark.min.css" rel="stylesheet" type="text/css" id="bs-dark-stylesheet" />
+
+    <link href="fonts-googleapis/materialicons.css" rel="stylesheet" />
+    <link href="fonts-googleapis/MaterialIconsOutlined.css" rel="stylesheet" />
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css" />
+    <link href="_content/BlazorPro.Spinkit/spinkit.min.css" rel="stylesheet" />
+
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20
+        }
+    </style>
+    @{
+        IgnoreSection("head");
+    }
+    <component type="typeof(HeadOutlet)" render-mode="Server" />
+
+</head>
+<body>
+    
+    @RenderBody()
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.server.js"></script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+    <script src="assets/js/vendor.min.js" asp-append-version="true"></script>
+    <script src="assets/js/app.min.js" asp-append-version="true"></script>
+    <script src="js/site.js" asp-append-version="true"></script>
+    
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            initApp();
+            document.onmousedown = resetExpiration;
+            document.onkeypress = resetExpiration;
+            
+            resetExpiration();
+            ValidateExpiration();
+        });
+        
+        function setDotNetHelper(dotNetObject){
+            DotNet = dotNetObject;
+        }
+        function resetExpiration() {
+
+            if (isAuthenticated()){
+                var now = new Date();
+                now.setSeconds(now.getSeconds() + @StaticClass.Constants.SessionJsTimeout);
+                localStorage.setItem("RELI.Expiration", new Date(now.toISOString()));
+                //console.log("resetExpiration", now.toISOString());
+            }
+            else{
+                removeExpiration();
+            }
+        }
+        function getExpiration() {
+            var result = (localStorage.getItem("RELI.Expiration") || "");
+            //console.log("getExpiration", result);
+            return result;
+        }
+        function removeExpiration() {
+            localStorage.removeItem("RELI.Expiration");
+
+            //console.log("removeExpiration");
+        }
+
+        function isAuthenticated(){
+            var result = (localStorage.getItem("RELI.Auth") || "");
+            return (result.length > 0);
+        }
+
+        function ValidateExpiration()
+        {
+            var Expires = new Date(getExpiration());
+            var now = new Date();
+            if(now > Expires && isAuthenticated()){
+                localStorage.removeItem("RELI.Expiration");
+                window.location.href = '/Account/Logout';
+            }
+            else{
+                setTimeout(ValidateExpiration,60000);
+            }
+        }
+
+    </script>
+    <script>
+       
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "BCRAEditar")]
+<hr class="mt-1 mb-0" />
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <RadzenLayout Style="height: auto">
+        <RadzenBody class="mbottom30">
+
+
+            <div class="mb-1 row">
+                <label class="col-sm-3 col-form-label text-end">Situaci&oacute;n BCRA:</label>
+                <div class="col-sm-9">
+                    <div class="d-flex flex-row align-items-center">
+                        <CustomRadzenDropDown class="w-100"
+                                              Name="ddlSituaciones"
+                                              AllowFiltering=false
+                                              TextProperty="Descripcion"
+                                              ValueProperty="Id"
+                                              Data="@lstSituaciones"
+                                              FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                              @bind-Value="@Model.IdSituacionBcra" />
+                    </div>
+                    <div><ValidationMessage For="() => Model.IdSituacionBcra" /></div>
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <label class="col-sm-3 col-form-label text-end">Mínimo de deuda admisible:</label>
+                <div class="col-sm-9">
+                    <CustomRadzenNumeric TValue="decimal?"
+                                         MaxIntegers="3"
+                                         MaxDecimals="2"
+                                         class="form-control w-100"
+                                         ShowUpDown="false"
+                                         Style="max-width:300px"
+                                         Format="F2"
+                                         @bind-Value=@Model.MinimoDeudaAdmisible />
+                    <div><ValidationMessage For="() => Model.MinimoDeudaAdmisible" /></div>
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <label class="col-sm-3 col-form-label text-end">Máximo de deuda admisible:</label>
+                <div class="col-sm-9">
+                    <CustomRadzenNumeric TValue="decimal?"
+                                         MaxIntegers="3"
+                                         MaxDecimals="2"
+                                         class="form-control"
+                                         ShowUpDown="false"
+                                         Style="width:300px"
+                                         Format="F2"
+                                         @bind-Value=@Model.MaximoDeudaAdmisible />
+                    <div><ValidationMessage For="() => Model.MaximoDeudaAdmisible" /></div>
+                </div>
+            </div>
+
+        </RadzenBody>
+        <RadzenFooter class="mt-3">
+
+            <div class="d-flex flex-row text-end justify-content-end">
+                @if (!isBusyAceptar)
+                {
+                    <button type="submit" class="btn btn-violet" style="width: 120px">Aceptar</button>
+                    <button type="button" class="btn btn-light" @onclick="@((args) => dialogService.Close(false))" style="width: 120px">Cancelar</button>
+                }
+                else
+                {
+                    <Spinner1 Text="Guardando..." />
+                }
+            </div>
+
+        </RadzenFooter>
+
+    </RadzenLayout>
+</EditForm>
+
+
+

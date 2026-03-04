@@ -1,0 +1,104 @@
+﻿@page "/Account/Login"
+@layout AnonymousLayout
+<style type="text/css">
+    .rz-body{
+        background-color: #4e4e4e !important;
+    }
+    /* Footer fijo */
+    .app-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 100px;
+        background-color: lightgray;
+        z-index: 1030;
+    }
+
+    /* Espacio al final del contenido para que no lo cubra el footer */
+    .page-with-footer {
+        padding-bottom: 100px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-6 ps-3 pe-3">
+            <div >
+
+                    <h1 class="rz-color-white">Bienvenido al Registro de Licitadores</h1>
+                    <h3 class="rz-color-white">Una plataforma pensada para estar m&aacute;s cerca.</h3>
+                    <hr />
+            <p class="rz-color-white">
+                        Esta plataforma está diseñada para poder interactural con el Registro de Licitadores de manera de poder obtener los certificados correspondientes
+                    </p>
+            </div>
+
+    </div>
+    <div class="col-6 ps-3 pe-3">
+        <div class="card">
+            <div class="card-body">
+                <h1>Inicio de sesión</h1>
+                <h3>Para poder ingresar a la plataforma debe tener acceso al SUU.</h3>
+                <hr />
+
+                <div>
+                    <button type="button" @onclick=@LoginIn class="btn btn-violet">
+                        Acceder
+                    </button>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <div class="alert alert-danger mt-2">
+                        @ErrorMessage
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row" style="background-color:white;margin-top: 50px">
+    <div class="row pb-3" >
+        @* <div class="col-6 ps-3 pe-3 ">
+            <h3 >Que hacer al ingreso por primera vez</h3>
+            <div class="ratio ratio-16x9 w-75">
+                <iframe src="https://drive.google.com/file/d/1DAsumD0TeJwAFgH3zmL5e5xNVb1Qt-SQ/preview " frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+        <div class="col-6 ps-3 pe-3">
+            <h3 >Como actualizar información de mi empresa</h3>
+            <div class="ratio ratio-16x9 w-75">
+                <iframe src="https://drive.google.com/file/d/10TJEytnjmghyKXtG0wO8R4BhN9sga-wd/preview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div> *@
+
+    </div>
+@*
+    <div class="row mt-3 pb-3">
+        <div class="col-6 ps-3 pe-3">
+            <h3 >Solicitar un certificado </h3>
+            <div class="ratio ratio-16x9 w-75">
+                <iframe src="https://www.youtube.com/embed/X6fQ0fTL85I" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+        <div class="col-6 ps-3 pe-3">
+
+            <h3 >Preguntas Frecuentes</h3>
+            <div class="ratio ratio-16x9 w-75">
+                <iframe src="https://www.youtube.com/embed/yBh6Kv11p3U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+
+        </div>
+
+    </div>*@
+</div>
+
+>
+
+<footer class="app-footer">
+    <div class="container h-100 d-flex align-items-center justify-content-center">
+        <a href="/Account/SolicitudUsuario" class="btn btn-violet">Solicitar un usuario para el sistema</a>
+    </div>
+</footer>

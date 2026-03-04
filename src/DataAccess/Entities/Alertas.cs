@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace DataAccess.Entities;
+
+public partial class Alertas
+{
+    public int IdAlerta { get; set; }
+
+    public string Titulo { get; set; } = null!;
+
+    public string Mensaje { get; set; } = null!;
+
+    public bool Leido { get; set; }
+
+    public DateTime CreateDate { get; set; }
+
+    public string CreateUser { get; set; } = null!;
+
+    public DateTime? LastUpdateDate { get; set; }
+
+    public string? LastupdateUser { get; set; }
+}

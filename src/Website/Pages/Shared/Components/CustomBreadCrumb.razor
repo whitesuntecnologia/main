@@ -1,0 +1,32 @@
+﻿
+<RadzenBreadCrumb>
+    
+    <Template Context="item">
+        
+        @if (@item.Path.Length > 0)
+        {
+            <RadzenLink Path="@item.Path" Text="" class="badge bg-violet text-light  fs-6 p-1">
+                <div class="d-flex align-items-center">
+                    @if (item.Text == "Inicio")
+                    {
+                        <span class="material-icons fs-6 me-1">home</span>
+                    }
+                    <span>@item.Text</span>
+            </div>
+            </RadzenLink>
+        }
+        else
+        {
+            <strong class="text-dark">@item.Text</strong>
+        }
+    </Template>
+    <ChildContent>
+        <RadzenBreadCrumbItem Icon="home" Path="/" Text="Inicio"></RadzenBreadCrumbItem>
+
+        @foreach (var item in Path)
+        {
+            <RadzenBreadCrumbItem Path="@item.Value" Text="@item.Key"></RadzenBreadCrumbItem>
+        }
+    </ChildContent>
+</RadzenBreadCrumb>
+

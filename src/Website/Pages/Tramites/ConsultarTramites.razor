@@ -1,0 +1,60 @@
+﻿@page "/Tramites/ConsultarTramites"
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){ 
+                        { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                        {"Consulta de trámites",""} 
+                        }) />
+<hr class="mt-2 mb-2" />
+<h3 class="mt-1">Consulta de Trámites</h3>
+
+<div class="row">
+    <div class="col-6">
+        <label>Lista de tr&aacute;mites</label>
+    </div>
+    <div class="col-6 text-end">
+        <label>Cantidad de registros: @lstTramites.Count()</label>
+    </div>
+</div>
+
+<div class="row mt-1">
+    <div class="col-12">
+        <RadzenDataGrid @ref="grdTramites"
+                        Count="@lstTramites.Count"
+                        Data="@lstTramites"
+                        AllowSorting="true"
+                        AllowPaging="true"
+                        AllowColumnResize="true"
+                        PageSize="20"
+                        TItem="ItemGrillaConsultarTramitesDTO">
+
+            <Columns>
+
+                <RadzenDataGridColumn TItem="ItemGrillaConsultarTramitesDTO" Property="IdTramite" Title="Trámite" Width="100px" />
+                <RadzenDataGridColumn TItem="ItemGrillaConsultarTramitesDTO" Property="NombreTipoTramite" Title="Tipo Trámite"  />
+                <RadzenDataGridColumn TItem="ItemGrillaConsultarTramitesDTO" Property="CreateDate" Title="Fecha Inicio" Width="160px" />
+                <RadzenDataGridColumn TItem="ItemGrillaConsultarTramitesDTO" Property="NombreEstado" Title="Estado" Width="200px" />
+
+                <RadzenDataGridColumn TItem="ItemGrillaConsultarTramitesDTO" Property="IdTramite" Sortable="false" Filterable="false" CssClass="text-center" Width="120px">
+                    <Template Context="data">
+                        <RadzenLink Path=@($"/Tramites/Visualizar/{data.IdentificadorUnico}") 
+                                    Icon="visibility" 
+                                    Text="Visualizar"
+                                    class="rz-color-primary" />
+                                
+
+                        
+                    </Template>
+                </RadzenDataGridColumn>
+
+            </Columns>
+            <EmptyTemplate>
+                <p>No hay registros</p>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+    </div>
+
+</div>

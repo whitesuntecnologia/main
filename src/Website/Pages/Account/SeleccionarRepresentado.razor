@@ -1,0 +1,49 @@
+﻿@page "/Account/SeleccionarRepresentado/{userid}/{token}"
+@using Microsoft.AspNetCore.Authorization;
+@layout AnonymousLayout
+
+@attribute [AllowAnonymous]
+<EditForm Model="@Model" OnSubmit="LoginIn">
+    <DataAnnotationsValidator />
+
+    @if (usuarioValido)
+    {
+        <div class="position-absolute top-50 start-50 translate-middle ">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Seleccione la empresa a la que va a representar.</h3>
+                    <hr />
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <label class="form-label" style="margin-top:-13px;z-index:99">Empresa</label>
+                        <CustomRadzenDropDown class="form-control"
+                        AllowFiltering=true
+                        TextProperty="Descripcion"
+                        ValueProperty="Id"
+                        Data="@lstEmpresas"
+                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        @bind-Value="@Model.IdEmpresa" />
+                        <ValidationMessage For="() => Model.IdEmpresa" />
+                    </div>
+
+                    <div>
+                        <RadzenButton ButtonType="ButtonType.Submit" lass="w-100 btn btn-lg btn-primary" Text="Acceder"></RadzenButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="position-absolute top-50 start-50 translate-middle ">
+            <div class="card">
+                <div class="card-body">
+                    
+                    <div class="alert alert-danger">El token es inválido. No es posible iniciar sesión en el sistema.</div>
+                </div>
+            </div>
+        </div>
+    }
+</EditForm>
+

@@ -1,0 +1,182 @@
+﻿@page "/Tramites/Antecedentes/{Accion}/{IdentificadorUnico}" 
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Pages.Shared
+@attribute [Authorize]
+
+<style type="text/css">
+    /* Oculta todo el header */
+    #grdEspecialidades2 thead:first-of-type {
+        display: none;
+    }
+</style>
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/Visualizar/{IdentificadorUnico}" },
+                  { $"Formulario 11",""}
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/Visualizar/{IdentificadorUnico}" },
+                  { $"Formulario 11",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                      { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                      {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/Visualizar/{IdentificadorUnico}"},
+                      {$"Formulario 11",""}
+                      }) />
+}
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Tr&aacute;mite @tramite?.IdTramite - Antecedentes de Producción -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+<div class="alert alert-warning" role="alert">
+    Obras ejecutadas dentro de los 5 años anteriores a la fecha de presentación para cada especialidad.(excluidos mayores costos)
+</div>
+
+
+@foreach(var Especialidad in lstEspecialidades)
+{
+    <div class="card mt-2">
+        <div class="card-header pt-2 pb-2 navbar-button">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0">Especialidad: <span class="rz-color-primary-dark">@Especialidad.DescripcionEspecialidad</span></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <ul class="list-unstyled">
+                @foreach (var seccion in Especialidad.Secciones.OrderBy(x => x.DescripcionSeccion))
+                {
+                    <li class="rz-color-series-1">
+                        <div class="d-flex justify-content-between">
+                            <h4>Sección  <span class="rz-color-primary-dark">@seccion.DescripcionSeccion</span></h4>
+
+                            <RadzenButton Click="@(e => AgregarObraClick(Especialidad.IdTramiteEspecialidad, seccion.IdTramiteEspecialidadSeccion))"
+                            class="ms-1 mb-1"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            Text="Agregar Obra"
+                            Icon="add"
+                            Visible="@(PermiteEditar && !SinDatosForm)"
+                            ButtonType="ButtonType.Button"
+                            Variant="Variant.Flat"
+                            Size="ButtonSize.Small"
+                            ButtonStyle="ButtonStyle.Light" />
+                        </div>
+
+                        <div>
+                            @{
+                                var lstObras = lstAntecedentesObras.Where(x => x.IdTramiteEspecialidad == Especialidad.IdTramiteEspecialidad
+                                        && x.IdTramiteEspecialidadSeccion == seccion.IdTramiteEspecialidadSeccion)
+                                        .ToList();
+                            }
+                            <RadzenDataGrid Count="@lstObras.Count"
+                            Data="@lstObras"
+                            AllowSorting="false"
+                            AllowPaging="false"
+                            AllowColumnResize="true"
+                            Density="Density.Compact"
+                            TItem="TramitesAntecedentesDto">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="TramitesAntecedentesDto" Property="NombreObra" Title="Obra" WhiteSpace="WhiteSpace.Wrap" Width="auto" />
+                                    <RadzenDataGridColumn TItem="TramitesAntecedentesDto" Property="Ubicacion" Title="Ubicación" MaxWidth="300px" Width="250px" />
+                                    <RadzenDataGridColumn TItem="TramitesAntecedentesDto" Property="Comitente" Title="Comitente" MaxWidth="300px" Width="250px" />
+                                    <RadzenDataGridColumn TItem="TramitesAntecedentesDto" Property="MontoContrato" FormatString="{0:C2}" Title="Monto Contratado" MaxWidth="160px" Width="180px" TextAlign="TextAlign.Right" />
+                                    <RadzenDataGridColumn TItem="TramitesAntecedentesDto" Property="PeriodoBase" Title="@(tramite!.IdGrupoTramite == StaticClass.Constants.GruposDeTramite.RegistroLicitadores ? "Base" : "Contrato")" MaxWidth="180px" Width="130px" TextAlign="TextAlign.Center"/>
+                                    <RadzenDataGridColumn TItem="TramitesAntecedentesDto" MaxWidth="130px" Width="130px" Frozen="true" FrozenPosition="FrozenColumnPosition.Right" Title="Acciones" TextAlign="TextAlign.Center">
+                                        <Template Context="dataObra">
+                                            <div class="d-flex flex-row">
+                                                <div class="ps-1">
+                                                    <RadzenButton Click="@(e => EditarObraClick(dataObra))"
+                                                    data-toggle="tooltip"
+                                                    data-placement="top"
+                                                                  title=@(PermiteEditar? "Editar": "Visualizar")
+                                                    Icon=@(PermiteEditar ? "edit": "visibility")
+                                                    ButtonType="ButtonType.Button"
+                                                    ButtonStyle="ButtonStyle.Light">
+
+                                                    </RadzenButton>
+                                                    <RadzenButton Click="@(e => EliminarObraClick(dataObra))"
+                                                    class="ms-1"
+                                                    data-toggle="tooltip"
+                                                    data-placement="top"
+                                                    title="Eliminar"
+                                                    Icon="delete"
+                                                    ButtonType="ButtonType.Button"
+                                                    ButtonStyle="ButtonStyle.Light"
+                                                                  Visible="@(PermiteEditar)">
+
+                                                    </RadzenButton>
+                                                </div>
+                                            </div>
+                                        </Template>
+                                    </RadzenDataGridColumn> 
+
+                                </Columns>
+                                <EmptyTemplate>
+                                    Aún no se ingresaron Antecedentes de obras para esta especialidad y sección.
+                                </EmptyTemplate>
+                            </RadzenDataGrid>
+
+
+                        </div>
+
+                        <div class="mt-2 mb-3">
+                            <RadzenButton class="w-auto"
+                            Click="@(e => DetalleMensualClick(Especialidad.IdTramiteEspecialidad, seccion.IdTramiteEspecialidadSeccion))"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            Text="Detalle de Certificación Mensual"
+                                          Icon=@(PermiteEditar ? "edit": "visibility")
+                            ButtonType="ButtonType.Button"
+                            Variant="Variant.Flat"
+                            ButtonStyle="ButtonStyle.Light">
+
+                            </RadzenButton>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+
+    </div>
+}
+
+
+@if (lstAntecedentesObras.Count <= 0)
+{
+    <div class="alert alert-info mt-2 d-inline-block">
+        <RadzenCheckBox @bind-Value=@SinDatosForm
+                        name="chkSinDatos"
+                        Disabled="@(!PermiteEditar)" />
+        <RadzenLabel Text="Sin datos que informar por ser empresa nueva." Component="chkSinDatos" class="ms-1" />
+    </div>
+}
+@if (tramite?.PermiteEditarFormulario(StaticClass.Constants.Formularios.AntecedentesDeProduccion) ?? false)
+{
+    <FormEvaluacion 
+        IdentificadorUnico="@IdentificadorUnico" 
+        NroFormulario="11"
+        OnGuardarClick="GuardarEvaluacionClick"
+        OnCancelarClick="CancelarEvaluacionClick"
+        Visible="@EvaluandoTramite"
+        >
+    </FormEvaluacion>
+}

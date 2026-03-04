@@ -1,0 +1,51 @@
+﻿@page "/SConsole"
+<style>
+    th
+    {
+        padding: 10px;
+        background: black;
+        color: white;
+    }
+    td{
+        border: 1px solid #ccc;
+        padding-left:10px;
+        padding-right: 10px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+        <RadzenTextArea class="w-100" Rows="20" @bind-Value=@sentencias></RadzenTextArea>
+        <button type="button" class="btn btn-primary" @onclick=@ExecuteClick>Execute</button>
+    </div>
+</div>
+<div class="row mt-1">
+    <div class="col-12">
+        @if (results != null)
+        {
+            <label>Cantidad de registros: @results.Rows.Count</label>
+            <table class="mt-1">
+                <thead>
+                    <tr>
+                @foreach (System.Data.DataColumn col in results.Columns)
+                {
+                    <th>
+                        @col.ColumnName
+                    </th>
+                }
+                    </tr>
+                </thead>
+                @foreach (System.Data.DataRow row in results.Rows)
+                {
+                    <tr>
+                        @for (int i = 0; i <= row.ItemArray.Count() - 1; i++)
+                        {
+                            <td >@row[i].ToString()</td>
+                        }
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+
+</div>

@@ -1,0 +1,269 @@
+﻿@page "/Tramites/AntecedentesDetalleMensual/{AccionFormAnterior}/{IdentificadorUnico}/{Accion}/{IdTramiteEspecialidad:int?}/{IdTramiteEspecialidadSeccion:int?}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Models.Formulario;
+@using BlazorPro.Spinkit
+
+@attribute [Authorize]
+
+<style type="text/css">
+    /* en tu site.css o styles.css */
+    .rz-column-title-content {
+        white-space: normal !important;
+        line-height: 1.2em;
+    }
+/* 
+     .rz-grid-table, .rz-datatable {
+        width:fit-content !important;
+    }  */
+</style>
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/Visualizar/{IdentificadorUnico}" },
+                  { $"Formulario 11",$"/Tramites/Antecedentes/{AccionFormAnterior}/{IdentificadorUnico}"},
+                  {$"{Accion} Detalle Mensual",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/Visualizar/{IdentificadorUnico}"},
+                  {$"Formulario 11",$"/Tramites/Antecedentes/{AccionFormAnterior}/{IdentificadorUnico}"},
+                  {$"{Accion} Detalle Mensual",""}
+                  }) />
+}
+<hr class="mt-2 mb-2" />
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            <h2>Cargando...</h2>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+        <h3>
+            Tr&aacute;mite @tramite?.IdTramite - @Accion Detalle Mensual - 
+            <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+        </h3>
+
+        @if (!HeadersGrilla.Any())
+        {
+            <div class="mt-3 alert alert-warning">
+                No hay antecedentes de obras cargados para la especialidad <strong>@DescripcionEspecialidad</strong>
+                y sección <strong>@DescripcionEspecialidadSeccion</strong>. <br />
+                Primero debe cargar los antecedentes y luego la declaración mensual.
+            </div>
+        }
+        else
+        {
+            <div class="d-flex alert alert-dark">
+                <div class="col-6">
+                    <strong>Especialidad: </strong><span class="ms-1">@DescripcionEspecialidad</span>
+                </div>
+                <div class="col-6">
+                    <strong>Sección: </strong><span class="ms-1">@DescripcionEspecialidadSeccion</span>
+                </div>
+            </div>
+
+            <EditForm Model="@Model">
+
+                <RadzenDataGrid @ref=grid2 TItem="TramitesAntecedentesDdjjFilaDto"
+                EditMode="DataGridEditMode.Single"
+                AllowAlternatingRows="false" 
+                AllowFiltering="false" 
+                AllowPaging="false" 
+                AllowSorting="false"
+                AllowColumnResize="true"
+                AllowGrouping="false"
+                Data="@datos2" 
+                ColumnWidth="180px"
+                Density="Density.Compact"
+                RowRender="OnRowRender"
+                Style="height:calc(100vh - 360px);">
+                    <Columns>
+                        <!-- Columna fija -->
+                        <RadzenDataGridColumn TItem="TramitesAntecedentesDdjjFilaDto" Title="Mes/Año" Property="Mes" MaxWidth="120px" Width="120px">
+                            <Template Context="item">
+                                <span>@($"{item.Mes:00}") / @item.Anio</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+
+
+                        <!-- Columnas dinámicas -->
+                        @if (antecedentesHeaders != null)
+                        {
+                            var index = 0;
+                            foreach (var header in antecedentesHeaders)
+                            {
+                                <RadzenDataGridColumn TItem="TramitesAntecedentesDdjjFilaDto" Title="@header" Property="Mes" MinWidth="180px">
+                                    <Template Context="item">
+                                        @{
+                                            var antecedente = item.Antecedentes.FirstOrDefault(a => a.NombreObra == header);
+                                        }
+
+                                        <div class="text-end">@(String.Format("{0:C2}", @antecedente?.MontoMensual))</div>
+                                    </Template>
+                                     <EditTemplate Context="item">
+                                        @{
+                                            var antecedente = item.Antecedentes.FirstOrDefault(a => a.NombreObra == header);
+                                        }
+
+                                        <RadzenNumeric class="form-control"
+                                                       TextAlign="TextAlign.Right"
+                                                       TValue="decimal"
+                                                       ShowUpDown="false"
+                                                       @bind-Value="@antecedente.MontoMensual"
+                                                       Disabled="@(!antecedente?.PermiteEditarMonto ?? true)"
+                                                       Format="N2" />
+
+                                    </EditTemplate> 
+                                </RadzenDataGridColumn>
+                                index++;
+
+                                isRenderized = (index == antecedentesHeaders.Count);
+
+
+                            }
+                        }
+                 
+                        @if (isRenderized)
+                        {
+                            <RadzenDataGridColumn TItem="TramitesAntecedentesDdjjFilaDto" Title="Total" Property="TotalFila" TextAlign="TextAlign.Right" MaxWidth="200px" Width="200px" HeaderCssClass="pe-2">
+                                <Template Context="item">
+                                    <div class="text-end">@(String.Format("{0:C2}", item.MontoFila)) </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TextAlign="TextAlign.Center" FrozenPosition="FrozenColumnPosition.Right" Frozen="true" MaxWidth="80px" Title="Acciones" Width="120px" Visible="@tramite.PermiteEditarEmpresa">
+                                <Template Context="data">
+                                    <RadzenButton Icon="edit" 
+                                            ButtonStyle="ButtonStyle.Light" 
+                                            Variant="Variant.Flat" 
+                                            Size="ButtonSize.Medium" 
+                                            Click="@(args => EditRow2(data))" 
+                                            @onclick:stopPropagation="true" 
+                                            Disabled="@isEditRow" />
+                                </Template>
+                                <EditTemplate Context="data">
+                                    <RadzenButton Icon="check" 
+                                            ButtonStyle="ButtonStyle.Success" 
+                                            Variant="Variant.Flat" 
+                                            Size="ButtonSize.Medium" 
+                                            ButtonType="ButtonType.Submit" 
+                                            Click="@((args) => SaveRow2(data))" 
+                                            aria-label="Save" />
+                                    <RadzenButton Icon="close" 
+                                            ButtonStyle="ButtonStyle.Light" 
+                                            Variant="Variant.Flat" 
+                                            Size="ButtonSize.Medium" 
+                                            Click="@((args) => CancelEdit2(data))" 
+                                            aria-label="Cancel" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                        }
+                    </Columns>
+                </RadzenDataGrid>
+
+                @if (ResumenMejores12 != null)
+                {
+                <h3 class="ms-1 mt-3">
+                    Los mejores 12 meses fueron del @ResumenMejores12.MesInicio.ToString("00")/@ResumenMejores12.AnioInicio
+                    al @ResumenMejores12.MesFin.ToString("00")/@ResumenMejores12.AnioFin)
+                </h3>
+                }
+                
+                @if(lstDetalleCalculo.Any())
+                {
+                    <table class="table table-bordered w-auto">
+                        <thead>
+                            <tr>
+                                <th class="width-300">Descripci&oacute;n</th>
+                            @foreach (var item in lstDetalleCalculo)
+                            {
+                                var colName = $"id{item.IdAntecedente}";
+                                var headerName = HeadersGrilla.First(x => x.IdTramiteAntecedente == item.IdAntecedente).ColumnName;
+                                <th class="width-300">@headerName</th>
+                            }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Totales Ejecutado</td>
+                                @foreach (var item in lstDetalleCalculo)
+                                {
+                                    <td>@(String.Format("{0:C2}", item.TotalObra))</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td>Totales (12 mejores meses)</td>
+                                @foreach(var item in lstDetalleCalculo)
+                                {
+                                    <td>@(String.Format("{0:C2}", item.Total))</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td>Indice Actualización</td>
+                                @foreach (var item in lstDetalleCalculo)
+                                {
+                                    <td>@(String.Format("{0:N8}", item.IndiceActivo))</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td>Monto Actualizado</td>
+                                @foreach (var item in lstDetalleCalculo)
+                                {
+                                    <td>@(String.Format("{0:C2}", item.MontoActivo))</td>
+                                }
+                        
+                            </tr>
+                        </tbody>
+                    </table>
+                
+                    <h3 class="ms-1">Capacidad básica: @(String.Format("{0:C2}", @lstDetalleCalculo.Sum(s => s.MontoActivo)))</h3>
+                }
+            </EditForm>
+
+            <div class="row mt-1">
+                <div class="d-flex justify-content-end">
+                
+                    <div>
+                        @if (tramite != null && tramite.PermiteEditarEmpresa)
+                        {
+                            if (!isBusyAceptar)
+                            {
+                                <div class="d-flex flex-row justify-content-end">
+                                    <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+                                <button type="button" class="btn btn-success ms-1" style="width:120px" @onclick="@OnClickGuardar" disabled="@isEditRow">Guardar</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="d-flex flex-row justify-content-end">
+                                    <Spinner1 Text="Guardando..."></Spinner1>
+                                </div>
+
+                            }
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-row justify-content-end">
+                                <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cerrar</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+    </ContentTemplate>
+</SpinLoader>
+
+

@@ -1,0 +1,119 @@
+﻿@using DataTransferObject;
+@using DataTransferObject.BLs;
+@using Models
+
+    @if (!DisableAddFile && !ReadOnly)
+    {
+        <div class="row g-2 mb-1 d-flex align-items-center">
+            <div class="col">
+                <RadzenUpload 
+                    Url="upload/single"
+                    Icon="upload"
+                    Progress=@OnProgressAsync
+                    Complete=@OnComplete
+                    Error=@OnErrorUpload
+                    ChooseText="Adjuntar Archivo"
+                    Accept="@Accept"
+                />
+            </div>
+        </div>
+
+        @if (progressUploadingFile != 0)
+        {
+            <RadzenProgressBar @bind-Value="@progressUploadingFile" ShowValue="true"  />
+        }
+    }
+    <RadzenDataGrid 
+        @ref="grid"
+        TItem="FileDTO"
+        Data=@Files
+        Visible=@showGrid
+        AllowSorting="false"
+        AllowPaging="false"
+        AllowColumnResize="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="FileDTO"
+                                              
+                Property="IdFile" 
+                Title="Documento">
+                <Template 
+                    Context="data">                         
+                    <span>@data.FileName</span>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FileDTO"
+                                    Width="100px"  
+                Title="Tamaño" 
+                Sortable="false" 
+                Filterable="false" 
+                CssClass="text-right col-grid-right text-center"
+                HeaderCssClass="text-center col-grid-right-x4">
+                <Template Context="data">                         
+                    <label>@data.SizeStr</label>
+                    
+                </Template>
+            </RadzenDataGridColumn>                             
+            <RadzenDataGridColumn TItem="FileDTO"
+                                    Width="80px"  
+                Title="Archivo" 
+                Sortable="false" 
+                Filterable="false"
+                CssClass="text-right col-grid-right text-center"
+                HeaderCssClass="text-center col-grid-right-x4">
+                <Template Context="data">
+                @if (!isBusyFileDownload)
+                {
+                    if (string.IsNullOrWhiteSpace(data.FilePath))
+                    {
+                        <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFile)) title="Descargar" >
+                            <span class="material-icons" style="cursor:pointer; font-size:30px; color: cornflowerblue">
+                                cloud_download
+                            </span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a @onclick=@(async () => await OnDownloadLocalFileAsync(data.FilePath)) title="Descargar">
+                            <span class="material-icons" style="cursor:pointer; font-size:30px; color: cornflowerblue">
+                                cloud_download
+                            </span>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FileDTO"
+                            Width="80px"  
+                                    Property="IdFile" 
+
+                Sortable="false" 
+                Filterable="false" 
+                CssClass="text-right col-grid-right text-center" 
+                HeaderCssClass="text-center col-grid-right">
+                <Template Context="data">
+                    <RadzenButton Click="@(e => RemoveFileAsync(data))"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Eliminar"
+                                                Visible="@(!ReadOnly)"
+                                                Icon="delete"
+                                                ButtonType="ButtonType.Button"
+                                                ButtonStyle="ButtonStyle.Light">
+
+                    </RadzenButton>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+        <EmptyTemplate>
+            <div class="d-flex flex-row">
+                <span class="material-icons  icon-dual-danger">
+                    block
+                </span>
+                <strong class="mtop2 ms-1" >@StaticClass.Constants.DatagridNoRecords</strong>
+            </div>
+        </EmptyTemplate>
+    </RadzenDataGrid>

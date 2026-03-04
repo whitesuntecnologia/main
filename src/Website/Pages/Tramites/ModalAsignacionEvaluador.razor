@@ -1,0 +1,48 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+<hr class="mt-1 mb-0" />
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <DataAnnotationsValidator />
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <RadzenLayout Style="height: auto">
+        <RadzenBody class="mbottom30">
+
+            <div class="row">
+                <div class="col-12">
+
+                <label class="col-form-label">Nuevo Evaluador:</label>
+                    <CustomRadzenDropDown class="form-control w-100"
+                                          AllowFiltering=true
+                                          TextProperty="Descripcion"
+                                          ValueProperty="Id"
+                                          Data="@lstUsuariosAsignacion"
+                                          FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                          @bind-Value="@Model.userid" 
+                                          />
+                    <div>
+                        <ValidationMessage For="() => Model.userid" />
+                    </div>
+
+                </div>
+            </div>
+
+        </RadzenBody>
+        <RadzenFooter class="mt-3">
+            <div class="d-flex flex-row text-end justify-content-end">
+                @if (!isBusyAceptar)
+                {
+                    <button type="submit" class="btn btn-violet" style="width: 120px">Aceptar</button>
+                    <button type="button" class="btn btn-light" @onclick="@((args) => dialogService.Close(null))" style="width: 120px">Cancelar</button>
+                }
+                else
+                {
+                    <div class="spinner-border text-pink" role="status"></div>
+                }
+            </div>
+
+        </RadzenFooter>
+
+    </RadzenLayout>
+</EditForm>

@@ -1,0 +1,119 @@
+﻿@page "/{IdMenu:int?}"
+@using BlazorPro.Spinkit
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Business.Interfaces;
+
+@attribute [Authorize]
+
+<a href="#" class="badge bg-violet text-light  fs-6 p-1" @onclick="@(args => BreadClick())" @onclick:preventDefault>
+    <div class="d-flex align-items-center">
+        <span class="material-icons fs-6 me-1">home</span>
+        Inicio
+    </div>
+</a>
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+        
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            <h2>Cargando...</h2>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+  
+        <div class="d-flex flex-row justify-content-center mt-2 mb-3">
+            <h1> @Titulo</h1>
+        </div>
+
+
+        @for(int i = 0; i < lstMenues.Count; i++)
+        {
+            var menu = lstMenues[i];
+            var arr = menu.IconCss.Split(",");
+            string classFont = "material-icons";
+            string classIcon = menu.IconCss;
+            if (arr.Length > 1)
+            {
+                classFont = arr[0];
+                classIcon = arr[1];
+            }
+    
+            if (lstMenues.Count > 4)
+            {
+                <div class="row">
+                    <div class="col-6 d-flex justify-content-center">
+            
+                        <a href="/" @onclick=@(args => MenuClick(menu)) @onclick:preventDefault>
+                            <div class="card card-menu">
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center" style="width:64px">
+                                        <span class="@classFont fs-64 color-icon-menu">@classIcon</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="m-1">@menu.Descripcion</h4>
+                                        <div class="m-1">@menu.Aclaraciones</div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </a>
+            
+                    </div>
+                    @if (i + 1 < lstMenues.Count)
+                    {
+                
+                        var menu2 = lstMenues[i+1];
+                        arr = menu2.IconCss.Split(",");
+                        classFont = "material-icons";
+                        classIcon = menu2.IconCss;
+                        if (arr.Length > 1)
+                        {
+                            classFont = arr[0];
+                            classIcon = arr[1];
+                        }
+
+                        <div class="col-6 d-flex justify-content-center">
+
+                            <a href="/" @onclick=@(args => MenuClick(menu2)) @onclick:preventDefault>
+                                <div class="card card-menu">
+                                    <div class="d-flex align-items-center">
+                                        <div class="d-flex align-items-center" style="width:64px">
+                                            <span class="@classFont fs-64 color-icon-menu">@classIcon</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="m-1">@menu2.Descripcion</h4>
+                                            <div class="m-1">@menu2.Aclaraciones</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+
+                        </div>
+                        i++;
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-row justify-content-center mt-2">
+                    <a href="/" @onclick=@(args => MenuClick(menu)) @onclick:preventDefault>
+                        <div class="card card-menu">
+                            <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center" style="width:64px">
+                                    <span class="@classFont fs-64 color-icon-menu">@classIcon</span>
+                                </div>
+                                <div>
+                                    <h4 class="m-1">@menu.Descripcion</h4>
+                                    <div class="m-1">@menu.Aclaraciones</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    </ContentTemplate>
+</SpinLoader>

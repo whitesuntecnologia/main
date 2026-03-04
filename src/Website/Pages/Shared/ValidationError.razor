@@ -1,0 +1,28 @@
+﻿@page "/ValidationError/{id:int}"
+
+<div class="position-absolute start-50 translate-middle text-center" style="margin-top:220px">
+    <i class="mdi mdi-book-cancel" style="font-size: 128px;"></i>
+    <h1 class="display-3">@ErrorMessage</h1>
+</div>
+
+@code {
+    [Parameter] public int id { get; set; }
+
+    private string ErrorMessage { get; set; } = "";
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        switch(id)
+        {
+            case 401:
+                ErrorMessage = "El usuario no se encuentra autorizado para ver esta página.";
+                break;
+            case 402:
+                ErrorMessage = "En este tipo de trámite no es posible modificar los datos de esta página.";
+                break;
+
+        }
+    }
+
+}

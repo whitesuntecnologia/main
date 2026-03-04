@@ -1,0 +1,191 @@
+﻿@page "/Seguridad/Empresas/{Accion}/{IdEmpresa:int}"
+@page "/Seguridad/Empresas/{Accion}"
+
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Models.Seguridad
+
+@attribute [Authorize(Roles = "VinculacionEmpresaEditar")]
+
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                                    { "Seguridad","/14" },
+                                    {$"Empresas","/Seguridad/Empresas"},
+                                    {$"{Accion} Empresa",""}
+                                    }) />
+
+<hr class="mt-2 mb-2" />
+
+<h3>
+    @Accion Empresa
+</h3>
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <RadzenLayout Style="height: auto">
+        <RadzenBody class="mbottom30">
+
+
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label text-end">C.U.I.T.:</label>
+                <div class="col-sm-4">
+                    <CustomRadzenNumeric TValue="decimal?"
+                                         MaxIntegers="11"
+                                         MaxDecimals="0"
+                                         class="form-control"
+                                         ShowUpDown="false"
+                                         @bind-Value=@Model.CuitEmpresa
+                                         Placeholder="11 dígitos sin guiones"
+                                         />
+                    <ValidationMessage For="() => Model.CuitEmpresa" />
+                </div>
+            </div>
+            
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label text-end">Razon Social:</label>
+                <div class="col-sm-10 mt-1">
+                    <RadzenTextBox class="form-control"
+                                   @bind-value=@Model.RazonSocial
+                                   MaxLength="150" />
+                    <ValidationMessage For="() => Model.RazonSocial" />
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label text-end">Domicilio, Teléfono y Correo Electrónico:</label>
+                <div class="col-sm-10 mt-1">
+                    <RadzenTextBox class="form-control"
+                                   @bind-value=@Model.Domicilio
+                                   MaxLength="200" />
+                    <ValidationMessage For="() => Model.Domicilio" />
+                </div>
+            </div>
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label text-end">Vencimiento:</label>
+                <div class="col-sm-10">
+                    <RadzenDatePicker TValue="DateTime?"
+                                      DateFormat="d"
+                                      class="width-200"
+                                      @bind-Value=@Model.Vencimiento
+                                      Disabled="true" >
+                    </RadzenDatePicker>
+                    <div><ValidationMessage For="() => Model.Vencimiento" /></div>
+                </div>
+            </div>
+
+            <div class="mb-0 row">
+                <div class="col-sm-12">
+                    <div class="alert alert-info">
+                        Para crear un vínculo tanto la empresa como el representante tienen que tener dados de alta sus usuarios.
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label text-end">Vigencia Desde:</label>
+                <div class="col-sm-10">
+                    <RadzenDatePicker TValue="DateTime?"
+                                        DateFormat="d"
+                                        class="width-200"
+                                        @bind-Value=@Model.FechaVigenciaDesde
+                                        Min="DateTime.Today">
+                    </RadzenDatePicker>
+                    <div><ValidationMessage For="() => Model.FechaVigenciaDesde" /></div>
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label text-end">Vigencia Hasta:</label>
+                <div class="col-sm-10">
+                    <RadzenDatePicker TValue="DateTime?"
+                                        DateFormat="d"
+                                      class="width-200"
+                                        @bind-Value=@Model.FechaVigenciaHasta
+                                        Min="DateTime.Today">
+                    </RadzenDatePicker>
+                    <div><ValidationMessage For="() => Model.FechaVigenciaHasta" /></div>
+                </div>
+            </div>
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label text-end">C.U.I.T. Representante:</label>
+                <div class="col-sm-10">
+                    <CustomRadzenDropDown class="form-control"
+                                          AllowFiltering=true
+                                          TextProperty="Descripcion"
+                                          ValueProperty="Id"
+                                          Data="@lstUsuarios"
+                                          FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                          @bind-Value="@Model.UseridRepresentante" />
+                    <div><ValidationMessage For="() => Model.UseridRepresentante" /></div>
+                </div>
+
+            </div>
+            @* Sección de Sanciones *@
+            <hr class="mt-3 mb-3" />
+            <div class="mb-1 row">
+                <div class="col-sm-12">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>Sanciones</h5>
+                        <button type="button" class="btn btn-primary btn-sm" @onclick="OnClickAgregarSancion">
+                            <i class="fas fa-plus"></i> Agregar Sanción
+                        </button>
+                    </div>
+
+                    @if (Model.Sanciones.Any())
+                    {
+                        <RadzenDataGrid @ref="grdSanciones" 
+                                        Data="@Model.Sanciones" TItem="EmpresaSancionModel"
+                                        AllowFiltering="false"
+                                        AllowPaging="false"
+                                        AllowSorting="true"
+                                        class="rz-datatable-sm">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="EmpresaSancionModel" Property="Nombre" Title="Nombre" Width="250px" />
+                                <RadzenDataGridColumn TItem="EmpresaSancionModel" Property="FechaDesdeSancion" Title="Desde" Width="120px" FormatString="{0:dd/MM/yyyy}" />
+                                <RadzenDataGridColumn TItem="EmpresaSancionModel" Property="FechaHastaSancion" Title="Hasta" Width="120px" FormatString="{0:dd/MM/yyyy}" />
+                                <RadzenDataGridColumn TItem="EmpresaSancionModel" Property="FilenameSancion" Title="Archivo" Width="200px" />
+                                <RadzenDataGridColumn TItem="EmpresaSancionModel" Title="Acciones" Width="150px" Sortable="false" Filterable="false">
+                                    <Template Context="sancion">
+                                        <button type="button" class="btn btn-primary btn-sm me-1" @onclick="() => OnClickEditarSancion(sancion)" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm" @onclick="() => OnClickEliminarSancion(sancion)" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary">
+                            No hay sanciones registradas.
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </RadzenBody>
+        <RadzenFooter class="mt-3">
+
+            <div class="d-flex flex-row text-end justify-content-end">
+                @if (!isBusyAceptar)
+                {
+                    <button type="submit" class="btn btn-violet" style="width: 120px">Aceptar</button>
+                    <button type="button" class="btn btn-light ms-1" @onclick="@OnClickCancelar" style="width: 120px">Cancelar</button>
+                }
+                else
+                {
+                    <Spinner1 Text="Guardando..." />
+                }
+            </div>
+
+        </RadzenFooter>
+
+    </RadzenLayout>
+</EditForm>
+
+
+

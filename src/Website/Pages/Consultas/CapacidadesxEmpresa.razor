@@ -1,0 +1,449 @@
+﻿@page "/Consultas/CapacidadxEmpresa"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Administrador,Evaluador")]
+
+<style>
+    .header-wrap {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        line-height: 1.2 !important;
+        padding: 8px 4px !important;
+        text-align: center !important;
+    }
+
+    
+
+</style>
+
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                                    {$"Listado de Capacidades por Empresa",""}
+                                    }) />
+
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Listado de Capacidades por Empresa
+</h3>
+
+
+<EditForm Model="@Model" OnSubmit="OnClickBuscar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+  
+     @*Informacion de la empresa*@
+    <div class="card">
+        <div class="card-header navbar-button pt-2 pb-2">
+            <h4 class="card-title mb-0">Filtros</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="row mt-2">
+                <span class="col-3 col-form-label text-end">Tipo de Vencimiento:</span>
+                <div class="col-9">
+                    <RadzenRadioButtonList @bind-Value=@Model.VencimientoSelected
+                                           TValue="int"
+                                           Orientation="Orientation.Horizontal"
+                                           class="mt-1"
+                                           Gap="3">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Todas" Value="1" />
+                            <RadzenRadioButtonListItem Text="Vencidas" Value="2" />
+                            <RadzenRadioButtonListItem Text="No Vencidas" Value="3" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                    <div>
+                        <ValidationMessage For="() => Model.VencimientoSelected" />
+                    </div>
+                </div>
+            </div>
+             <div class="row mt-2">
+                <span class="col-3 col-form-label text-end">Especialidad:</span>
+                <div class="col-9">
+                    <CustomRadzenDropDown class="form-control"
+                                          Name="ddlEspecialidad"
+                                          AllowFiltering=true
+                                          TextProperty="Descripcion"
+                                          ValueProperty="Id"
+                                          Data="@Model.Especialidades"
+                                          FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                          @bind-Value="@Model.IdEspecialidadSelected" />
+                    <div>
+                        <ValidationMessage For="() => Model.IdEspecialidadSelected" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-2">
+                <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-violet" >
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">search</span>
+                                <span>Buscar</span>
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-light ms-1" @onclick=@LimpiarClick>
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">filter_alt_off</span>
+                                <span>Limpiar</span>
+                            </span>
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-1">
+        <div class="card-header pt-1 pb-1 navbar-button">
+            <h4 class="card-title mb-0 p-1">Resultados del Informe</h4>
+        </div>
+        <div class="card-body">
+            <div class="card-body p-0 mb-1">
+                <div class="row">
+                    <div class="col-6">
+                        <label>Lista de Empresas</label>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button type="button" class="btn btn-success me-2" @onclick="ExportarExcel">
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1">download</span>
+                                <span>Exportar a Excel</span>
+                            </span>
+                        </button>
+                        <label>Cantidad de registros: @lstResultado.Count</label>
+                    </div>
+                </div>
+
+                <div class="row mt-1">
+                    <div class="col-12">
+                        <RadzenDataGrid @ref="grdResultado"
+                                        Count="@lstResultado.Count"
+                                        Data="@lstResultado"
+                                        AllowSorting="true"
+                                        AllowPaging="true"
+                                        AllowColumnResize="true"
+                                        PageSize="20"
+                                        PagerHorizontalAlign="HorizontalAlign.Center"
+                                        IsLoading="@IsBusyBuscar"
+                                        TItem="InformeCapacidadesxEmpresaDtoFlat">
+
+                            <Columns>
+                                <RadzenDataGridColumn TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                      Property="IdEmpresa"
+                                                      Title="ID"
+                                                      Width="80px"
+                                                      CssClass="text-center"
+                                                      HeaderCssClass="text-center" />
+
+                                <RadzenDataGridColumn TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                      Property="CuitEmpresa"
+                                                      Title="CUIT"
+                                                      Width="120px"
+                                                      CssClass="text-center"
+                                                      HeaderCssClass="text-center" />
+
+                                <RadzenDataGridColumn TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                      Property="RazonSocial"
+                                                      Title="Razón Social"
+                                                      Width="300px" />
+
+                                <RadzenDataGridColumn TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                      Property="Domicilio"
+                                                      Title="Domicilio"
+                                                      Width="250px" />
+
+                                <RadzenDataGridColumn TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                      Property="FechaInscripcion"
+                                                      Title="Fecha Inscripción"
+                                                      Width="140px"
+                                                      CssClass="text-center"
+                                                      HeaderCssClass="text-center">
+
+                                    <Template Context="data">
+                                        @(data.FechaInscripcion.HasValue? data.FechaInscripcion.Value.ToString("dd/MM/yyyy") : "-")
+                                    </Template>
+                                    <FooterTemplate>
+                                        <strong>Total:</strong>
+                                    </FooterTemplate>
+                                </RadzenDataGridColumn>
+
+                                <RadzenDataGridColumn TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                      Property="Vencimiento"
+                                                      Title="Vencimiento"
+                                                      Width="140px"
+                                                      CssClass="text-center"
+                                                      HeaderCssClass="text-center">
+                                    <Template Context="data">
+                                        @(data.Vencimiento.HasValue? data.Vencimiento.Value.ToString("dd/MM/yyyy") : "-")
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                                <RadzenDataGridColumn TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                      Title=""
+                                                      Width="110px"
+                                                      CssClass="text-center"
+                                                      HeaderCssClass="text-center">
+                                    <HeaderTemplate>
+                                        <div class="header-wrap">
+                                            <div>Certificado (Actualizado)</div>
+                                        </div>
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+
+                                        @if (data.Capacidades.Any())
+                                        {
+                                            <a @onclick=@(async () => await DescargarCertificadoClick(data)) title="Descargar Certificado Actualizado">
+                                                <span class="material-icons" style="font-size:40px;cursor:pointer; color:  #a264d1 ">picture_as_pdf</span>
+                                            </a>
+                                        }
+                                    </Template>
+                                    <FooterTemplate>
+                                        <strong>Total:</strong>
+                                    </FooterTemplate>
+                                </RadzenDataGridColumn>
+
+
+                                @* Columnas dinámicas por especialidad *@
+                                @foreach (var especialidad in lstEspecialidades)
+                                {
+                                    var seccionKey = $"{especialidad.IdSeccion}-{especialidad.Descripcion}";
+
+                                    @* Capacidad Técnica *@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CT")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Técnica</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CT");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CT")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+
+                                    @* Capacidad Técnica UVI *@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CTU")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Técnica UVI</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CTU");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CTU")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+
+                                    @* Capacidad Técnica UVI Actualizada Mes Anterior*@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CTUA")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Técnica UVI (Act. Mes Anterior)</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CTUA");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CTUA")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+
+                                    @* Capacidad Contratación *@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CC")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Contratación</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CC");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CC")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+
+                                    @* Capacidad Contratación UVI *@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CCU")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Contratación UVI</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CCU");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CCU")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+
+                                    @* Capacidad Contratación UVI (Act. Mes Anterior) *@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CCUA")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Contratación UVI (Act. Mes Anterior)</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CCUA");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CCUA")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+
+
+                                    @* Capacidad Ejecución *@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CE")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Ejecución</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CE");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CE")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+
+                                    @* Capacidad Ejecución UVI*@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CEU")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Ejecución UVI</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CEU");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CEU")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+
+                                    @* Capacidad Ejecución UVI (Act. Mes Anterior) *@
+                                    <RadzenDataGridColumn @key="@($"{seccionKey}-CEUA")"
+                                                          TItem="InformeCapacidadesxEmpresaDtoFlat"
+                                                          Width="200px"
+                                                          Sortable="false"
+                                                          CssClass="text-end">
+                                        <HeaderTemplate>
+                                            <div class="header-wrap">
+                                                <div>@(especialidad.Descripcion)</div>
+                                                <div class="mt-1">Cap. Ejecución UVI (Act. Mes Anterior)</div>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            @{
+                                                var valor = data.GetCapacidad(seccionKey, "CEUA");
+                                            }
+                                            @(valor > 0 ? valor.ToString("N2") : "-")
+                                        </Template>
+                                        <FooterTemplate>
+                                            <div class="text-end">
+                                                <strong>@lstResultado.Sum(x => x.GetCapacidad(seccionKey, "CEUA")).ToString("N2")</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                    </RadzenDataGridColumn>
+                                }
+                            </Columns>
+
+                            <EmptyTemplate>
+                                <p>No hay registros</p>
+                            </EmptyTemplate>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>

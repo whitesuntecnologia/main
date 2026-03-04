@@ -1,0 +1,300 @@
+﻿@page "/Tramites/RepresentantesTecnicos/{Accion}/{IdentificadorUnico}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Pages.Shared
+@attribute [Authorize]
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 9",""}
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 9",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/{Accion}/{IdentificadorUnico}"},
+                  {$"Formulario 9",""}
+                  }) />
+}
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Tr&aacute;mite @tramite?.IdTramite - Representantes Técnicos -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+<div class="card mt-3">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Lista de Representantes T&eacute;cnicos</h4>
+            </div>
+            <div>
+                @if (PermiteEditar)
+                {
+                    <button type="button" class="btn btn-violet" @onclick=@AgregarClick>
+                        <span class="d-flex flex-row justify-content-between align-items-center">
+                            <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                            <span>Agregar Representante T&eacute;cnico</span>
+                        </span>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+            Cantidad de registros: @lstRepresentantes.Count()
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <RadzenDataGrid @ref="grdRepresentantes"
+                Count="@lstRepresentantes.Count"
+                Data="@lstRepresentantes"
+                AllowSorting="true"
+                AllowPaging="false"
+                AllowColumnResize="true"
+                TItem="TramitesRepresentanteTecnicoDTO">
+
+                    <Columns>
+
+                        <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="NombreEspecialidad" Title="Especialidad" Sortable="false" Filterable="false" >
+                            <Template Context="data">
+                                @{
+                                    foreach (var item in data.TramitesRepresentantesTecnicosEspecialidades)
+                                    {
+                                        <div>
+                                            @item.NombreEspecialidad
+                                        </div>
+                                    }
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="IdRepresentanteTecnico" Title="Nombre/s y Apellido" Sortable="false" Filterable="false">
+                            <Template Context="data">
+                                @(data.Nombres + " " + data.Apellido)
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="CUIT" Title="C.U.I.T." Sortable="false" Filterable="false" Width="130px" />
+                        <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="IdRepresentanteTecnico" Title="Datos Varios" Sortable="false" Filterable="false" >
+                            <Template Context="data">
+                                <div class="fs-5">
+                                    <div class="text-wrap"><strong>Cargo:</strong><span class="ms-1">@data.Cargo</span></div>
+                                    <div class="text-wrap"><strong>Matr&iacute;cula:</strong><span class="ms-1">@data.Matricula</span></div>
+                                    <div class="text-wrap"><strong>Fecha Venc. Matrícula:</strong><span class="ms-1">@data.FechaVencimientoMatricula.ToString("dd/MM/yyyy")</span></div>
+                                    <div class="text-wrap"><strong>Fecha Venc. Contrato:</strong><span class="ms-1">@data.FechaVencimientoContrato.ToString("dd/MM/yyyy")</span></div>
+                                    <div class="text-wrap"><strong>Jurisdicciones:</strong><span class="ms-1">@(string.Join(", ", data.TramitesRepresentantesTecnicosJurisdicciones.Select(s => s.DescripcionProvincia).ToArray()))</span></div>
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="IdRepresentanteTecnico" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="160px">
+                            <Template Context="data">
+                                <div class="d-flex flex-row">
+                                    <div class="ps-1">
+                                        <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFileContrato)) title="Descargar Contrato">
+                                            <span class="material-icons" style="font-size:40px;cursor:pointer; color:  #a264d1 ">picture_as_pdf</span>
+                                        </a>
+                                        <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFileBoleta)) title="Descargar Boleta">
+                                            <span class="material-icons" style="font-size:40px;cursor:pointer; color:  #a264d1 ">picture_as_pdf</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-row">
+                                    <div class="ps-1">
+                                        <RadzenButton Click="@(e => EditarClick(data))"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            title=@(PermiteEditar ? "Editar": "Visualizar")
+                                            Icon=@(PermiteEditar ? "edit": "visibility")
+                                            ButtonType="ButtonType.Button"
+                                            ButtonStyle="ButtonStyle.Light">
+
+                                        </RadzenButton>
+                                        
+                                        @if(data.EstaRegistrado)
+                                        {
+                                            <RadzenButton Click="@(e => DesvincularClick(data))"
+                                                          class="ms-1"
+                                                          data-toggle="tooltip"
+                                                          data-placement="top"
+                                                          title="Desvincular"
+                                                          Icon="group_off"
+                                                          ButtonType="ButtonType.Button"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Visible="@(PermiteEditar)" />
+                                        }
+                                        else
+                                        {
+                                            <RadzenButton Click="@(e => EliminarClick(data))"
+                                                              class="ms-1"
+                                                              data-toggle="tooltip"
+                                                              data-placement="top"
+                                                              title="Eliminar"
+                                                              Icon="delete"
+                                                              ButtonType="ButtonType.Button"
+                                                              ButtonStyle="ButtonStyle.Light"
+                                                              Visible="@(PermiteEditar)" />
+                                        }
+
+                                        
+                                    </div>
+                                </div>
+
+
+                            </Template>
+                        </RadzenDataGridColumn>
+
+                    </Columns>
+                    <EmptyTemplate>
+                        <div class="d-flex flex-row align-items-center">
+                            <span class="material-icons" style="font-size:64px; color:lightgray">
+                                block
+                            </span>
+                            <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                        </div>
+                    </EmptyTemplate>
+                </RadzenDataGrid>
+
+            
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@if(lstRepresentantesDesvinculados.Any())
+{
+    <div class="card mt-3">
+        <div class="card-header pt-1 pb-1 navbar-button">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0">Representantes T&eacute;cnicos Desvinculados</h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                Cantidad de registros: @lstRepresentantesDesvinculados.Count()
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid @ref="grdRepresentantesDesvinculados"
+                                    Count="@lstRepresentantesDesvinculados.Count"
+                                    Data="@lstRepresentantesDesvinculados"
+                                    AllowSorting="true"
+                                    AllowPaging="false"
+                                    AllowColumnResize="true"
+                                    TItem="TramitesRepresentanteTecnicoDTO">
+
+                        <Columns>
+
+                            <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="NombreEspecialidad" Title="Especialidad" Sortable="false" Filterable="false">
+                                <Template Context="data">
+                                    @{
+                                        foreach (var item in data.TramitesRepresentantesTecnicosEspecialidades)
+                                        {
+                                            <div>
+                                                @item.NombreEspecialidad
+                                            </div>
+                                        }
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="IdRepresentanteTecnico" Title="Nombre/s y Apellido" Sortable="false" Filterable="false">
+                                <Template Context="data">
+                                    @(data.Nombres + " " + data.Apellido)
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="CUIT" Title="C.U.I.T." Sortable="false" Filterable="false" Width="130px" />
+                            <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="IdRepresentanteTecnico" Title="Datos Varios" Sortable="false" Filterable="false">
+                                <Template Context="data">
+                                    <div class="fs-5">
+                                        <div class="text-wrap"><strong>Cargo:</strong><span class="ms-1">@data.Cargo</span></div>
+                                        <div class="text-wrap"><strong>Matr&iacute;cula:</strong><span class="ms-1">@data.Matricula</span></div>
+                                        <div class="text-wrap"><strong>Fecha Venc. Matrícula:</strong><span class="ms-1">@data.FechaVencimientoMatricula.ToString("dd/MM/yyyy")</span></div>
+                                        <div class="text-wrap"><strong>Fecha Venc. Contrato:</strong><span class="ms-1">@data.FechaVencimientoContrato.ToString("dd/MM/yyyy")</span></div>
+                                        <div class="text-wrap"><strong>Jurisdicciones:</strong><span class="ms-1">@(string.Join(", ", data.TramitesRepresentantesTecnicosJurisdicciones.Select(s => s.DescripcionProvincia).ToArray()))</span></div>
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="TramitesRepresentanteTecnicoDTO" Property="IdRepresentanteTecnico" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="160px">
+                                <Template Context="data">
+                                    <div class="d-flex flex-row">
+                                        <div class="ps-1">
+                                            <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFileContrato)) title="Descargar Contrato">
+                                                <span class="material-icons" style="font-size:40px;cursor:pointer; color:  #a264d1 ">picture_as_pdf</span>
+                                            </a>
+                                            <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFileBoleta)) title="Descargar Boleta">
+                                                <span class="material-icons" style="font-size:40px;cursor:pointer; color:  #a264d1 ">picture_as_pdf</span>
+                                            </a>
+
+                                            <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFileDesvinculacion.GetValueOrDefault())) title="Descargar Nota de Renuncia">
+                                                <span class="material-icons" style="font-size:40px;cursor:pointer; color:  red ">picture_as_pdf</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-row">
+                                        <div class="ps-1">
+                                            <RadzenButton Click="@(e => EliminarDesvinculadionClick(data))"
+                                                            class="ms-1"
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="Eliminar la Desvinculación"
+                                                            Icon="delete"
+                                                            ButtonType="ButtonType.Button"
+                                                            ButtonStyle="ButtonStyle.Light"
+                                                            Visible="@(PermiteEditar)" />
+                                        
+
+
+                                        </div>
+                                    </div>
+
+
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                        <EmptyTemplate>
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="material-icons" style="font-size:64px; color:lightgray">
+                                    block
+                                </span>
+                                <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                            </div>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}
+@if (tramite?.PermiteEditarFormulario(StaticClass.Constants.Formularios.RepresentantesTecnicos) ?? false)
+{
+    <FormEvaluacion 
+        IdentificadorUnico="@IdentificadorUnico" 
+        NroFormulario="9"
+        OnGuardarClick="GuardarEvaluacionClick"
+        OnCancelarClick="CancelarEvaluacionClick"
+        Visible="@EvaluandoTramite"
+        >
+    </FormEvaluacion>
+}

@@ -1,0 +1,264 @@
+﻿@page "/Tramites/RepresentantesTecnicos/{AccionFormAnterior}/{IdentificadorUnico}/{Accion}/{IdRepresentanteTecnico:int?}"
+
+@using Microsoft.AspNetCore.Authorization;
+
+@attribute [Authorize]
+@if (routeHistory.ProvieneBandejaTramites())
+{
+
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/Visualizar/{IdentificadorUnico}" },
+                  { $"Formulario 9",$"/Tramites/RepresentantesTecnicos/{AccionFormAnterior}/{IdentificadorUnico}"},
+                  {$"{Accion} Representante técnico",""}
+                  }) />
+
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/Visualizar/{IdentificadorUnico}"},
+                  {$"Formulario 9",$"/Tramites/RepresentantesTecnicos/{AccionFormAnterior}/{IdentificadorUnico}"},
+                  {$"{Accion} Representante técnico",""}
+                  }) />
+
+}
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Tr&aacute;mite @tramite?.IdTramite - @Accion Representante Técnico -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <DataAnnotationsValidator />
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <div class="mb-1 mt-2 row">
+        <label class="col-sm-2 col-form-label">Especialidad:</label>
+        <div class="col-sm-10">
+                
+            <CustomRadzenDropDown class="form-control"
+                                    Name="ddlEspecialidad"
+                                    AllowFiltering=true
+                                    Chips="true" AllowClear="true"
+                                    TextProperty="Descripcion"
+                                    ValueProperty="Id"
+                                    Data="@lstEspecialidades"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    Multiple=true
+                                    Disabled="@(!tramite.PermiteEditarEmpresa)"
+                                    @bind-Value="@Model.Especialidades" />
+
+            <ValidationMessage For="() => Model.Especialidades" />
+        </div>
+    </div>
+            
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">C.U.I.T.:</label>
+        <div class="col-sm-4">
+            <CustomRadzenNumeric TValue="decimal?"
+                                    MaxIntegers="11"
+                                    MaxDecimals="0"
+                                    class="form-control"
+                                    ShowUpDown="false"
+                                    @bind-Value=@Model.CUIT
+                                    Placeholder="11 dígitos sin guiones"
+                                    Change="@OnChangeCuit"
+                                    Disabled="@(!tramite.PermiteEditarEmpresa)" />
+            <ValidationMessage For="() => Model.CUIT" />
+        </div>
+    </div>
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Apellido:</label>
+        <div class="col-sm-4">
+            <RadzenTextBox class="form-control w-100" 
+                            MaxLength="50" 
+                            @bind-Value=@Model.Apellido
+                            Disabled="@(!tramite.PermiteEditarEmpresa)" />
+            <ValidationMessage For="() => Model.Apellido" />
+        </div>
+        <label class="col-sm-2 col-form-label text-end">Nombre/s:</label>
+        <div class="col-sm-4">
+            <RadzenTextBox class="form-control w-100" 
+                            MaxLength="50" 
+                            @bind-Value=@Model.Nombres
+                        Disabled="@(!tramite.PermiteEditarEmpresa)" />
+            <ValidationMessage For="() => Model.Nombres" />
+        </div>
+                    
+    </div>
+
+    <div class="mb-1 row">
+               
+        <label class="col-sm-2 col-form-label">Cargo en la empresa:</label>
+        <div class="col-sm-10">
+            <RadzenTextBox class="form-control w-100" 
+                        MaxLength="50" 
+                        @bind-Value=@Model.Cargo 
+                        Disabled="@(!tramite.PermiteEditarEmpresa)" />
+            <ValidationMessage For="() => Model.Cargo" />
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Jurisdicción:</label>
+        <div class="col-sm-10">
+            <RadzenDropDown Multiple="true" Chips="true" AllowClear="true" 
+                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            MaxSelectedLabels="25"
+                            Data=@lstProvincias 
+                            TextProperty="Descripcion" 
+                            ValueProperty="Id"
+                            @bind-Value=@Model.Jurisdicciones
+                            class="w-100"
+                            Disabled="@(!tramite.PermiteEditarEmpresa)" />
+            <ValidationMessage For="() => Model.Jurisdicciones" />
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+              
+        <label class="col-sm-2 col-form-label">Vencimiento Contrato:</label>
+        <div class="col-sm-4">
+            <RadzenDatePicker TValue="DateTime?" 
+                                DateFormat="d" 
+                                class="w-100" 
+                                @bind-Value=@Model.FechaVencimientoContrato
+                                Disabled="@(!tramite.PermiteEditarEmpresa)"
+                                Min="DateTime.Today.AddDays(1)">
+            </RadzenDatePicker>
+            <ValidationMessage For="() => Model.FechaVencimientoContrato" />
+        </div>
+    </div>
+
+            
+    <div class="mb-3 row">
+        <div class="col-sm-2">
+            <label class="col-form-label">Contrato:</label>
+            <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+        </div>
+        <div class="col-sm-10">
+            <CustomFileUpload @ref="upload"
+                                OnFileUploaded="HandleFileUploaded"
+                                OnFileDeleted="HandleFileDeletionRequested"
+                                OnError="HandleError"
+                                Files="@lstFilesContratos"
+                                ReadOnly="@(!tramite.PermiteEditarEmpresa)"
+                                Accept="application/pdf" >
+            </CustomFileUpload>
+            <ValidationMessage For="() => Model.IdFileContrato" />
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Matrícula Nro.:</label>
+        <div class="col-sm-4">
+            <RadzenTextBox class="form-control w-100"
+                            MaxLength="20"
+                            @bind-Value=@Model.Matricula
+                            Disabled="@(!tramite.PermiteEditarEmpresa)" />
+            <ValidationMessage For="() => Model.Matricula" />
+        </div>
+        <label class="col-sm-2 col-form-label text-end">Vencimiento Matrícula:</label>
+        <div class="col-sm-4">
+            <RadzenDatePicker TValue="DateTime?"
+                                DateFormat="d"
+                                class="w-100"
+                                @bind-Value=@Model.FechaVencimientoMatricula
+                                Disabled="@(!tramite.PermiteEditarEmpresa)"
+                                Min="DateTime.Today.AddDays(1)">
+            </RadzenDatePicker>
+            <ValidationMessage For="() => Model.FechaVencimientoMatricula" />
+        </div>
+    </div>
+          
+    <div class="mb-3 row">
+        <div class="col-sm-2">
+            <label class="col-form-label">Comprobante de Matrícula:</label>
+            <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+        </div>
+        <div class="col-sm-10">
+            <CustomFileUpload @ref="uploadMatricula"
+                                OnFileUploaded="HandleFileUploadedMatricula"
+                                OnFileDeleted="HandleFileDeletionRequestedMatricula"
+                                OnError="HandleError"
+                                Files="@lstFilesMatricula"
+                                ReadOnly="@(!tramite.PermiteEditarEmpresa)"
+                                Accept="application/pdf" >
+            </CustomFileUpload>
+            <ValidationMessage For="() => Model.IdFileMatricula" />
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-sm-2">
+            <label class="col-form-label">Boleta de pago (de la tasa del Rep técnico):</label>
+            <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+        </div>
+        <div class="col-sm-10">
+            <CustomFileUpload @ref="uploadBP"
+                              OnFileUploaded="HandleFileUploadedBP"
+                              OnFileDeleted="HandleFileDeletionRequestedBP"
+                              OnError="HandleError"
+                              Files="@lstFilesBoletas"
+                              ReadOnly="@(!tramite.PermiteEditarEmpresa)"
+                              Accept="application/pdf">
+            </CustomFileUpload>
+            <ValidationMessage For="() => Model.IdFileContrato" />
+        </div>
+    </div>
+
+    @if (tramite?.IdGrupoTramite == StaticClass.Constants.GruposDeTramite.RegistroConsultores)
+    {
+        <div class="mb-3 row">
+            <div class="col-sm-2">
+                <label class="col-form-label">Currículum Vitae:</label>
+                <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+            </div>
+            <div class="col-sm-10">
+                <CustomFileUpload @ref="uploadCV"
+                OnFileUploaded="HandleFileUploadedCV"
+                OnFileDeleted="HandleFileDeletionRequestedCV"
+                OnError="HandleError"
+                Files="@lstFilesCV"
+                ReadOnly="@(!tramite.PermiteEditarEmpresa)"
+                Accept="application/pdf">
+                </CustomFileUpload>
+                <ValidationMessage For="() => Model.IdFileCurriculum" />
+            </div>
+        </div>
+    }
+
+
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            @if (tramite.PermiteEditarEmpresa)
+            {
+                if (!isBusyAceptar)
+                {
+                    <div class="d-flex flex-row justify-content-end">
+                        <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+                        <button type="submit" class="btn btn-success ms-1" style="width:120px">Guardar</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="spinner-border text-pink" role="status"></div>
+                }
+            }
+            else
+            {
+                <div class="d-flex flex-row justify-content-end">
+                    <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cerrar</button>
+                </div>
+            }
+        </div>
+    </div>
+</EditForm>
+
+

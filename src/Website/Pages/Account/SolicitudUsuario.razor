@@ -1,0 +1,185 @@
+﻿@page "/Account/SolicitudUsuario"
+@using Microsoft.AspNetCore.Authorization;
+@layout AnonymousLayout
+@attribute [AllowAnonymous]
+
+
+<EditForm Model="@Model"  OnSubmit="OnClickAceptar">
+    <DataAnnotationsValidator />
+    <Blazored.FluentValidation.FluentValidationValidator />
+    
+    <div class="w-75 position-absolute translate-middle-x start-50 mt-2 pb-2">
+
+        <CustomBreadCrumb Path=@(new Dictionary<string, string>()) />
+
+        <h1 class="mt-3">Solicitud de Usuario</h1>
+        
+        @if (!solicitudEnviada)
+        {
+            <div class="card mt-3">
+                <div class="card-header pt-1 pb-1 navbar-button ">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div>
+                            <h4 class="card-title mb-0">Datos del usuario</h4>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="card-body" >
+
+                    <div class="row">
+                        <label class="col-sm-3 col-form-label">Apellido/s y Nombre/s del solicitante:</label>
+                        <div class="col-sm-9">
+                            <RadzenTextBox class="form-control"
+                                        @bind-value=@Model.ApellidoyNombresSolicitante
+                                       Change=@( args => ReValidate("ApellidoyNombresSolicitante")) />
+                            <ValidationMessage For="() => Model.ApellidoyNombresSolicitante" />
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">C.U.I.T. del solicitante:</label>
+                        <div class="col-sm-9">
+
+                            <CustomRadzenNumeric TValue="long?" 
+                                                MaxIntegers="11" 
+                                                MaxDecimals="0" 
+                                                class="form-control" 
+                                                ShowUpDown="false"
+                                                @bind-Value=@Model.CuitSolicitante
+                                             Change=@( args => ReValidate("CuitSolicitante"))
+                                                Placeholder="11 dígitos sin guiones" />
+
+                            <ValidationMessage For="() => Model.CuitSolicitante" />
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">Razon social de la empresa:</label>
+                        <div class="col-sm-9">
+                            <RadzenTextBox class="form-control"
+                                        @bind-value=@Model.RazonSocial
+                                       Change=@( args => ReValidate("RazonSocial")) />
+                            <ValidationMessage For="() => Model.RazonSocial" />
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">C.U.I.T. de la empresa:</label>
+                        <div class="col-sm-9">
+                            <CustomRadzenNumeric TValue="long?"
+                                                MaxIntegers="11"
+                                                MaxDecimals="0"
+                                                class="form-control"
+                                                ShowUpDown="false"
+                                                @bind-Value=@Model.CuitEmpresa
+                                             Change=@( args => ReValidate("CuitEmpresa"))
+                                                Placeholder="11 dígitos sin guiones" />
+
+                            <ValidationMessage For="() => Model.CuitEmpresa" />
+                        </div>
+                    </div>
+
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">Constancia de C.U.I.T.:</label>
+                        <div class="col-sm-9">
+                            <CustomFileUpload @ref="upload1"
+                                            OnFileUploaded="FileUploaded1"
+                                            OnFileDeleted="FileDeletionRequested1"
+                                            OnError="FileError"
+                                            Files="@lstFiles1"
+                                            ReadOnly="false"
+                                            Accept="application/pdf">
+                            </CustomFileUpload>
+                            <ValidationMessage For="() => Model.File1" />
+                        </div>
+                    </div>
+
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">Acta de Asamblea - Designación de autoridades:</label>
+                        <div class="col-sm-9">
+                            <CustomFileUpload @ref="upload2"
+                                            OnFileUploaded="FileUploaded2"
+                                            OnFileDeleted="FileDeletionRequested2"
+                                            OnError="FileError"
+                                            Files="@lstFiles2"
+                                            ReadOnly="false"
+                                            Accept="application/pdf">
+                            </CustomFileUpload>
+                            <ValidationMessage For="() => Model.File2" />
+                        </div>
+                    </div>
+
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">Contrato social, Estatuto e Inscripción en el registro Público de Comercio:</label>
+                        <div class="col-sm-9">
+                            <CustomFileUpload @ref="upload3"
+                                            OnFileUploaded="FileUploaded3"
+                                            OnFileDeleted="FileDeletionRequested3"
+                                            OnError="FileError"
+                                            Files="@lstFiles3"
+                                            ReadOnly="false"
+                                            Accept="application/pdf">
+                            </CustomFileUpload>
+                            <ValidationMessage For="() => Model.File3" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            @if(_appSettings?.isDesarrollo ?? false)
+            {
+                <div class="card mt-3">
+                    <div class="card-header pt-1 pb-1 navbar-button ">
+                        <div class="d-flex flex-row justify-content-between align-items-center">
+                            <div>
+                                <h4 class="card-title mb-0">Mail de destino</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="alert alert-warning">
+                            Esta opción solo aparece cuando el sistema está configurado en modo Desarrollo. En el modo productivo esta dirección se saca de los parámetros del sistema.
+                        </div>
+
+                        <div class="row">
+                            <label class="col-sm-3 col-form-label">Dirección de mail donde se recibirá el pedido:</label>
+                            <div class="col-sm-9">
+                                <RadzenTextBox class="form-control"
+                                        @bind-value=@mailto/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    @if (!isBusyAceptar)
+                    {
+                        <div class="d-flex flex-row justify-content-end">
+                            <button type="submit" class="btn btn-primary ">Solicitar Usuario</button>
+                            <button type="button" class="btn btn-secondary ms-1" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="spinner-border text-pink" role="status"></div>
+                    }
+                </div>
+            </div>
+            
+
+        }
+        else
+        {
+            <div class="alert alert-success mt-2">
+                <p class="fs-3 mt-1 mb-1">
+                    La solicitud ha sido enviada correctamente, por favor espere a que la misma haya sido procesada.
+                </p>
+            </div>
+            <a href="/account/Login"  >Volver al Login</a>
+        }
+    </div>
+    
+</EditForm>

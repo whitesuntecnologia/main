@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "EspecialidadesEquiposEditar")]
+<hr class="mt-1 mb-0" />
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <RadzenLayout Style="height: auto">
+        <RadzenBody class="mbottom30">
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label text-end">Descripción del Equipo:</label>
+                <div class="col-sm-10">
+                    <RadzenTextBox class="form-control w-100"
+                                   MaxLength="200" 
+                                   @bind-Value=@Model.DescripcionEquipo
+                                   />
+                    <ValidationMessage For="() => Model.DescripcionEquipo" />
+                </div>
+            </div>
+            @if (IsBaja)
+            {
+                <div class="mb-1 row">
+                    <label class="col-sm-2 col-form-label text-end">Dado de baja:</label>
+                <div class="col-sm-10">
+                    <RadzenCheckBox class="mt-1"
+                                   @bind-Value=@Model.Baja
+                                   />
+                    <ValidationMessage For="() => Model.Baja" />
+                </div>
+            </div>
+            }
+        </RadzenBody>
+        <RadzenFooter class="mt-3">
+
+            <div class="d-flex flex-row text-end justify-content-end">
+                @if (!isBusyAceptar)
+                {
+                    <button type="submit" class="btn btn-violet" style="width: 120px">Aceptar</button>
+                    <button type="button" class="btn btn-light" @onclick="@((args) => dialogService.Close(false))" style="width: 120px">Cancelar</button>
+                }
+                else
+                {
+                    <Spinner1 Text="Guardando..." />
+                }
+            </div>
+
+        </RadzenFooter>
+
+    </RadzenLayout>
+</EditForm>
+
+
+

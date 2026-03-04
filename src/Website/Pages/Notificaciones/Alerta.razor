@@ -1,0 +1,62 @@
+﻿@page "/MisAlertas"
+@using BlazorPro.Spinkit
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {"Bandeja de Alertas",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            <h2>Cargando...</h2>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+
+        <div class="row">
+            <div class="col-6">
+                <h3 class="mb-0">Bandeja de Alertas</h3>
+            </div>
+            <div class="col-6 text-end mb-0">
+                <label>Cantidad de registros: @lstAlertas.Count()</label>
+            </div>
+        </div>
+
+        <div class="row mt-1">
+            <div class="col-12">
+                <RadzenDataGrid @ref="grdAlertas"
+                                Count="@lstAlertas.Count"
+                                Data="@lstAlertas"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                AllowColumnResize="true"
+                                PageSize="20"
+                                TItem="AlertaDTO">
+
+                    <Columns>
+                        <RadzenDataGridColumn TItem="AlertaDTO" Property="IdEmpresa" Title="Nro. Empresa" Width="100px" />
+                        <RadzenDataGridColumn TItem="AlertaDTO" Property="RazonSocial" Title="Empresa" Width="250px" />
+                        <RadzenDataGridColumn TItem="AlertaDTO" Property="Mensaje" Title="Mensaje" />
+                        <RadzenDataGridColumn TItem="AlertaDTO" Property="Vencimiento" Title="Vencimiento" Width="150px" FormatString="{0:dd/MM/yyyy}" HeaderCssClass="text-center" />
+                        
+
+                    </Columns>
+                    <EmptyTemplate>
+                        <p>No hay registros</p>
+                    </EmptyTemplate>
+                </RadzenDataGrid>
+            </div>
+
+        </div>
+    </ContentTemplate>
+</SpinLoader>

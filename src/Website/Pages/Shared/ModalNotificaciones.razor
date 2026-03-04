@@ -1,0 +1,24 @@
+﻿<hr class="mb-2" style="margin-top: -15px;" />
+<div class="d-flex flex-row justify-content-start align-items-center">
+    <div class="ps-3">
+        @if (!string.IsNullOrWhiteSpace(Title))
+        {
+                <h5>@Title</h5>
+        }
+        <p>@Mensaje</p>
+    </div>
+
+</div>
+
+<div class="d-flex flex-row text-end justify-content-end mt-2">
+    <button type="button" class="btn btn-light btn-sm" @onclick="@((args) => dialogService.Close(false))" style="width: 120px">Cerrar</button>
+
+</div>
+
+
+
+@code {
+    [Parameter] public string Mensaje { get; set; } = string.Empty;
+    [Parameter] public string? Title { get; set; }
+    [Inject] private DialogService dialogService { get; set; } = null!;
+}

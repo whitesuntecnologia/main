@@ -1,0 +1,95 @@
+﻿@page "/MisMensajes"
+@using BlazorPro.Spinkit
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {"Bandeja de Mensajes y Notificaciones",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+        
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            <h2>Cargando...</h2>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+
+        <div class="row">
+            <div class="col-6">
+                <h3 class="mb-0">Bandeja de Notificaciones</h3>
+            </div>
+            <div class="col-6 text-end mb-0">
+                <label>Cantidad de registros: @lstNotificaciones.Count()</label>
+            </div>
+        </div>
+
+        <div class="row mt-1">
+            <div class="col-12">
+                <RadzenDataGrid @ref="grdNotificaciones"
+                                Count="@lstNotificaciones.Count"
+                                Data="@lstNotificaciones"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                AllowColumnResize="true"
+                                PageSize="20"
+                                TItem="NotificacionDTO">
+
+                    <Columns>
+
+                        <RadzenDataGridColumn TItem="NotificacionDTO" Property="IdTramite" Title="Nro. Trámite" Width="130px" CssClass="text-center" HeaderCssClass="text-center" >
+                            <Template Context="data">
+                                <a href="" onclick="@( async () => await navigateClick(data?.IdTramite ?? 0))" class="rz-color-primary" >
+                                    <span>@data.IdTramite</span>
+                                </a>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="NotificacionDTO" Property="CreateDate" Title="Fecha" Width="150px" HeaderCssClass="text-center" />
+                        <RadzenDataGridColumn TItem="NotificacionDTO" Property="Titulo" Title="Título" />
+                        <RadzenDataGridColumn TItem="NotificacionDTO" Property="Leido" Title="Leído" Width="120px" CssClass="text-center" HeaderCssClass="text-center">
+                            <Template Context="data">
+                                @if(data.Leido)
+                                {
+                                    <label>S&Iacute;</label>
+                                }
+                                else
+                                {
+                                    <label>No</label>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+
+                        <RadzenDataGridColumn TItem="NotificacionDTO" Property="IdNotificacion" Sortable="false" Filterable="false" CssClass="text-center" Width="120px">
+                            <Template Context="data">
+                                <RadzenButton Click="@(e => LeerClick(data))"
+                                              data-toggle="tooltip"
+                                              data-placement="top"
+                                              title="Visualizar"
+                                              Icon="visibility"
+                                              ButtonType="ButtonType.Button"
+                                              ButtonStyle="ButtonStyle.Light">
+
+                                </RadzenButton>
+
+
+                            </Template>
+                        </RadzenDataGridColumn>
+
+                    </Columns>
+                    <EmptyTemplate>
+                        <p>No hay registros</p>
+                    </EmptyTemplate>
+                </RadzenDataGrid>
+            </div>
+
+        </div>
+    </ContentTemplate>
+</SpinLoader>

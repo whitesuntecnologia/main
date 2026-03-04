@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager nm;
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly" OnNavigateAsync="OnNavigateAsync">
+        <Found Context="routeData" >
+            @*<RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />*@
+            @if (AppStateService.IsAppLoaded)
+            {
+                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"  >
+                    <NotAuthorized>
+                    
+                        @if(context.User?.Identity?.IsAuthenticated ?? false)
+                        {
+                            <h1 class="text-center">No estas autorizado para ver esta p&aacute;gina.</h1>
+                            <h5 class="text-center">Está página requiere un permiso que el usuario actual no posee. </h5>
+                        }
+                        else
+                        {
+                            //Cuando estamos en la pagina home y el usuario no esta logueado redirige al login
+                            if (nm.Uri == nm.BaseUri)
+                                nm.NavigateTo("Account/Login");
+                            else
+                            {
+                                <h1 class="text-center">Esta p&aacute;gina requiere que se inicie sessión.</h1>
+                                <div class="text-center mt-3">
+                                    <a href="/Account/Login" class="btn btn-primary">Iniciar session </a>
+                                </div>    
+                            }
+
+                        }
+
+                    
+
+                  </NotAuthorized>
+                </AuthorizeRouteView>
+            }
+        </Found>
+        <NotFound>
+
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+               <div class="position-absolute start-50 translate-middle text-center" style="margin-top:220px">
+                    <i class="mdi mdi-book-cancel" style="font-size: 128px;"></i>
+                    <h1 class="display-3 mt-0">404</h1>
+                    <h1 class="display-3">Página no encontrada</h1>
+                </div>
+                 
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

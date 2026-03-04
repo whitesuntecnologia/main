@@ -1,0 +1,253 @@
+﻿@page "/ModuloObras/{Accion}/{IdObra:int?}"
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "ModuloObrasEditar")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {$"Módulo de Obras","/ModuloObras"},
+                  {$"{Accion}",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+<h3>
+    @Accion Obra 
+</h3>
+
+
+<EditForm EditContext="@context" OnSubmit="OnClickAceptar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <div class="mt-3 row">
+        <label class="col-sm-2 col-form-label">Expediente:</label>
+        <div class="col-sm-10">
+            <RadzenTextBox class="form-control w-100"
+                            MaxLength="200"
+                            @bind-Value=@Model.Expediente />
+            <ValidationMessage For="() => Model.Expediente" />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <label class="col-sm-2 col-form-label">Nombre de la Obra:</label>
+        <div class="col-sm-10">
+            <RadzenTextBox class="form-control w-100"
+                            MaxLength="200"
+                            @bind-Value=@Model.ObraNombre />
+            <ValidationMessage For="() => Model.ObraNombre" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Estado:</label>
+        <div class="col-10">
+            <CustomRadzenDropDown class="w-100"
+                                    Name="ddlEstadosObras"
+                                    AllowFiltering=false
+                                    TextProperty="Descripcion"
+                                    ValueProperty="Id"
+                                    Data="@lstEstadosObra"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    @bind-Value="@Model.EstadoObra" />
+            <ValidationMessage For="() => Model.EstadoObra" />
+        </div>
+    </div>
+
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Plazo:</label>
+        <div class="col-10">
+            <CustomRadzenNumeric TValue="int?" MaxIntegers="6" MaxDecimals="0" class="form-control"
+                                    ShowUpDown="false" Style="width:100px"
+                                    @bind-Value=@Model.PlazoObra /> D&iacute;a/s
+            <div>
+                <ValidationMessage For="() => Model.PlazoObra" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Monto de la Obra:</label>
+        <div class="col-10">
+            <NumericBox TValue="decimal?"
+                        class="form-control width-200 rz-textbox"
+                        MaxIntegers="14"
+                        MaxDecimals="2"
+                        @bind-Value=@Model.MontoObra>
+            </NumericBox>
+            <ValidationMessage For="() => Model.MontoObra" />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Fecha Finalización:</label>
+        <div class="col-10">
+            <RadzenDatePicker TValue="DateTime?"
+                                DateFormat="d"
+                                @bind-Value=@Model.FechaFinObra>
+            </RadzenDatePicker>
+            <ValidationMessage For="() => Model.FechaFinObra" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <label class="col-2 col-form-label">Per&iacute;odo de Avance:</label>
+        <div class="col-sm-10">
+            <div class="d-flex flex-row align-items-center">
+                <CustomRadzenDropDown Style="width:80px"
+                                        Name="ddlMeses"
+                                        AllowFiltering=false
+                                        TextProperty="Descripcion"
+                                        ValueProperty="Id"
+                                        Data="@lstMeses"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        @bind-Value="@Model.MesAvanceObra" />
+
+                <label class="p-1">/</label>
+
+                <CustomRadzenNumeric TValue="int?" MaxIntegers="4" MaxDecimals="0" class="form-control"
+                                        ShowUpDown="false" Style="width:80px"
+                                        @bind-Value=@Model.AnioAvanceObra />
+            </div>
+            <div><ValidationMessage For="() => Model.MesAvanceObra" /></div>
+            <div><ValidationMessage For="() => Model.AnioAvanceObra" /></div>
+
+        </div>
+    </div>
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Porcentaje Avance:</label>
+        <div class="col-10">
+            <CustomRadzenNumeric TValue="decimal?" MaxIntegers="3" MaxDecimals="2" class="form-control"
+                                    ShowUpDown="false" Style="width:100px"
+                                    @bind-Value=@Model.PorcentajeAvanceObra />
+            <ValidationMessage For="() => Model.PorcentajeAvanceObra" />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">CUIT Empresa:</label>
+        <div class="col-10">
+            <CustomRadzenNumeric TValue="decimal?"
+                                    MaxIntegers="11"
+                                    MaxDecimals="0"
+                                    class="form-control"
+                                    ShowUpDown="false"
+                                    @bind-Value=@Model.CuitEmpresa
+                                    Placeholder="11 dígitos sin guiones" />
+
+            <ValidationMessage For="() => Model.CuitEmpresa" />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Empresa:</label>
+        <div class="col-10">
+            <RadzenTextBox class="form-control"
+                            @bind-Value="@Model.Empresa"
+                            MaxLength="600" />
+            <ValidationMessage For="() => Model.Empresa" />
+        </div>
+    </div>
+
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Es UTE:</label>
+        <div class="col-10">
+            <RadzenCheckBox class="mt-1"
+                            TValue="bool"
+                            @bind-Value=@Model.EsUte
+                            Change="chkEsUTEValueChanged"
+                            name="chkSinDatos" />
+            <ValidationMessage For="() => Model.EsUte" />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Licitante:</label>
+        <div class="col-10">
+            <RadzenTextBox class="form-control"
+                            @bind-Value="@Model.Licitante"
+                            MaxLength="600" />
+            <ValidationMessage For="() => Model.Licitante" />
+        </div>
+    </div>
+
+
+    <div class="row mt-2">
+        <label class="col-2 col-form-label">Porcentaje Participacion:</label>
+        <div class="col-10">
+            <CustomRadzenNumeric TValue="decimal?" MaxIntegers="3" MaxDecimals="2" class="form-control"
+                                 ShowUpDown="false" Style="width:100px"
+                                 @bind-Value=@Model.PorcentajeParticipacion
+                                 Disabled="@(!Model.EsUte)" />
+            <ValidationMessage For="() => Model.PorcentajeParticipacion" />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Coeficiente Conceptual:</label>
+        <div class="col-10">
+            <CustomRadzenNumeric TValue="decimal?"
+                                 MaxIntegers="3"
+                                 MaxDecimals="2"
+                                 class="form-control width-200"
+                                 ShowUpDown="false"
+                                 @bind-Value=@Model.CoeficienteConceptual
+                                 />
+
+            <ValidationMessage For="() => Model.CoeficienteConceptual" />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <label class="col-form-label col-2">Fecha Informe:</label>
+        <div class="col-10">
+            <RadzenDatePicker TValue="DateTime?"
+                              DateFormat="d"
+                              @bind-Value=@Model.FechaInformeCoeficiente>
+            </RadzenDatePicker>
+            <ValidationMessage For="() => Model.FechaInformeCoeficiente" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-2">
+            <label class="col-form-label">Archivo Informe Coef.:</label>
+            <h4><span class="badge badge-outline-danger">Archivo pdf</span></h4>
+        </div>
+        <div class="col-10">
+            <CustomFileUpload @ref="uploadIC"
+                                        OnFileUploaded="HandleFileUploadedIC"
+                                        OnFileDeleted="HandleFileDeletionRequestedIC"
+                                        OnError="HandleErrorIC"
+                                        OnProgress="OnProgressIC"
+                                        Files="@lstFilesIC"
+                                        Accept="application/pdf">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.IdFileInformeCoeficiente" />
+        </div>
+    </div>
+    @if (isBaja)
+    {
+        <div class="row mt-1">
+            <label class="col-form-label col-2">Dado de Baja:</label>
+            <div class="col-10">
+                <RadzenCheckBox class="mt-1"
+                    @bind-Value=@Model.BajaLogica
+                                name="chkSinDatos" />
+                <ValidationMessage For="() => Model.BajaLogica" />
+            </div>
+        </div>
+    }
+
+    <div class="d-flex flex-row text-end justify-content-end mt-2">
+        @if (!isBusyAceptar)
+        {
+            <button type="submit" class="btn btn-success" style="width: 120px">Guardar</button>
+            <button type="button" class="btn btn-light ms-1" @onclick="@CancelarClick" style="width: 120px">Cancelar</button>
+        }
+        else
+        {
+            <Spinner1 Text="Guardando..." />
+        }
+    </div>
+</EditForm>
+
+
+

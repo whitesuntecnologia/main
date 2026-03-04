@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@inherits LayoutComponentBase
+@attribute [AllowAnonymous]
+<main>
+
+    <RadzenDialog />
+    <RadzenNotification />
+    <RadzenContextMenu />
+    <RadzenTooltip />
+
+    <RadzenLayout class="rz-shadow-3">
+        <RadzenBody>
+            <div class="p-0 mb-3">
+                @Body
+            </div>
+        </RadzenBody>
+
+    </RadzenLayout>
+    
+</main>

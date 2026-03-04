@@ -1,0 +1,309 @@
+﻿@page "/Tramites/ObrasEjecucion/{AccionFormAnterior}/{IdentificadorUnico}/{Accion}/{IdTramiteObraEjec:int?}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Models.Formulario;
+@attribute [Authorize]
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/Visualizar/{IdentificadorUnico}" },
+                  {$"Formulario 12",$"/Tramites/ObrasEjecucion/{AccionFormAnterior}/{IdentificadorUnico}"},
+                  {$"{Accion} Obra en ejecución",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/Visualizar/{IdentificadorUnico}"},
+                  {$"Formulario 12",$"/Tramites/ObrasEjecucion/{AccionFormAnterior}/{IdentificadorUnico}"},
+                  {$"{Accion} Obra en ejecución",""}
+                  }) />
+}
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Tr&aacute;mite @tramite?.IdTramite - @Accion Obras en Ejecución, Contratadas y Adjudicadas -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+
+
+<EditForm Model="@Model" OnSubmit="OnClickGuardar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Nro. Expediente:</label>
+        <div class="col-sm-10 mt-1">
+            <RadzenTextBox class="form-control"
+                           @bind-value=@Model.Expediente
+                           Change=@( args => ReValidate("Expediente"))
+                           MaxLength="50" 
+                           Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" />
+            <ValidationMessage For="() => Model.Expediente" />
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Denominación de la Obra:</label>
+        <div class="col-sm-10 mt-1">
+            <div class="d-flex flex-row justify-content-end">
+                <CustomRadzenDropDown class="form-control"
+                                      Name="ddlObra"
+                                      AllowFiltering=true
+                                      TextProperty="Descripcion"
+                                      ValueProperty="Id"
+                                      Data="@lstObrasPciaLP"
+                                      FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                      Disabled="@(!tramite?.PermiteEditarEmpresa ?? false)"
+                                      @bind-Value="@Model.IdObraPciaLp"
+                                      Change="@ddlObraChanged"
+                                      />
+                @if (tramite?.PermiteEditarEmpresa ?? false)
+                {
+                    <button type="button" class="btn btn-secondary ms-1" style="width:120px" @onclick=@AgregarObraClick>
+                        <span class="d-flex flex-row justify-content-between align-items-center">
+                            <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                            <span>Agregar</span>
+                        </span>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Comitente:</label>
+        <div class="col-sm-10 mt-1">
+            <RadzenTextBox class="form-control"
+                           @bind-value=@Model.Comitente
+                           Change=@( args => ReValidate("Comitente"))
+                           MaxLength="20" 
+                           Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" />
+            <ValidationMessage For="() => Model.Comitente" />
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Tipo de Obra:</label>
+        <div class="col-sm-10">
+
+            <CustomRadzenDropDown class="form-control"
+                                  AllowFiltering=false
+                                  TextProperty="Descripcion"
+                                  ValueProperty="Id"
+                                  Data="@lstTiposDeObra"
+                                  FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                  @bind-Value="@Model.IdTipoObra" 
+                                  Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" />
+
+            <ValidationMessage For="() => Model.IdTipoObra" />
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Ubicación:</label>
+        <div class="col-sm-10 mt-1">
+            <RadzenTextBox class="form-control"
+                           @bind-value=@Model.Ubicacion
+                           Change=@( args => ReValidate("Ubicacion"))
+                           MaxLength="300" 
+                           Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" />
+            <ValidationMessage For="() => Model.Ubicacion" />
+        </div>
+    </div>
+
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Per&iacute;odo Base MC:</label>
+        <div class="col-sm-10">
+            <div class="d-flex flex-row align-items-center">
+                <CustomRadzenDropDown Style="width:80px"
+                                      AllowFiltering=false
+                                      TextProperty="Descripcion"
+                                      ValueProperty="Id"
+                                      Data="@lstMeses"
+                                      FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                      @bind-Value="@Model.MesBase" 
+                                      Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" />
+
+                <label class="p-1">/</label>
+
+                <CustomRadzenNumeric TValue="int?" MaxIntegers="4" MaxDecimals="0" class="form-control"
+                                     ShowUpDown="false" Style="width:80px"
+                                     @bind-Value=@Model.AnioBase 
+                                     Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))"  />
+            </div>
+            <div><ValidationMessage For="() => Model.MesBase" /></div>
+            <div><ValidationMessage For="() => Model.AnioBase" /></div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Fecha Inicio:</label>
+        <div class="col-sm-10">
+            <RadzenDatePicker TValue="DateTime?" 
+                              DateFormat="d" 
+                              Style="width:300px" 
+                              @bind-Value=@Model.FechaInicio
+                              Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" />
+            <div><ValidationMessage For="() => Model.FechaInicio" /></div>
+        </div>
+    </div>
+
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Plazo de Obra:</label>
+        <div class="col-sm-10">
+            <CustomRadzenNumeric TValue="int?" MaxIntegers="4" MaxDecimals="0" class="form-control"
+                                ShowUpDown="false" Style="width:80px"
+                                @bind-Value=@Model.PlazoObra
+                                 Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" /><label class="ms-1">día/s</label>
+            <div><ValidationMessage For="() => Model.PlazoObra" /></div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <div class="col-sm-2">
+            <label class="col-form-label pt-0 pb-0">Plazo de Ampliación:</label>
+            <div class="small">(incluye paralización)</div>
+        </div>
+        <div class="col-sm-10">
+            <CustomRadzenNumeric TValue="int?" MaxIntegers="4" MaxDecimals="0" class="form-control mt-1"
+                                ShowUpDown="false" Style="width:80px"
+                                @bind-Value=@Model.PlazoAmpliacion
+                                 Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" /><label class="ms-1">día/s</label>
+            <div><ValidationMessage For="() => Model.PlazoAmpliacion" /></div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <div class="col-sm-2">
+            <label class="col-form-label pt-0 pb-0">Total Contratado: </label>
+            <div class="small">(incluye adicionales y deductivos)</div>
+        </div>
+        <div class="col-sm-10">
+            <NumericBox TValue="decimal?" 
+                        MaxIntegers="10" 
+                        MaxDecimals="2" 
+                        class="form-control rz-textbox"
+                        Style="width:300px" 
+                        @bind-Value=@Model.TotalContratado 
+                        Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" />
+            <div><ValidationMessage For="() => Model.TotalContratado" /></div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Total Certificado:</label>
+        <div class="col-sm-10">
+            <NumericBox TValue="decimal?" 
+                        MaxIntegers="10" 
+                        MaxDecimals="2" 
+                        class="form-control rz-textbox"
+                        Style="width:300px" 
+                        @bind-Value=@Model.TotalCertificado 
+                        Disabled="@(!(tramite?.PermiteEditarEmpresa ?? false))" />
+            <div><ValidationMessage For="() => Model.TotalCertificado" /></div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Saldo:</label>
+        <div class="col-sm-10">
+
+            <label class="rz-textbox form-control rz-background-color-base-200" style="width: 300px">
+                @Model.Saldo.GetValueOrDefault().ToString("#,#.##") </label>
+            <div><ValidationMessage For="() => Model.Saldo" /></div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Porcentaje certificado:</label>
+        <div class="col-sm-10">
+            <label class="rz-textbox form-control rz-background-color-base-200" style="width: 300px">
+                @Model.PorcentajeCertificado.GetValueOrDefault().ToString("#,#0.##") </label>
+            <div><ValidationMessage For="() => Model.PorcentajeCertificado" /></div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Plazo transcurrido:</label>
+        <div class="col-sm-10">
+            <div class="d-flex flex-row align-items-center">
+                <label class="rz-textbox form-control rz-background-color-base-200" style="width: 80px">
+                    @Model.PlazoTranscurrido.GetValueOrDefault().ToString()
+                </label> <label class="ms-1">día/s</label>
+            </div>
+            <div><ValidationMessage For="() => Model.PlazoTranscurrido" /></div>
+        </div>
+    </div>
+    
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Monto Obra Mensual:</label>
+        <div class="col-sm-10">
+            <label class="rz-textbox form-control rz-background-color-base-200" style="width: 300px">
+                @Model.MontoMensual.GetValueOrDefault().ToString("#,#0.##") </label>
+            <div><ValidationMessage For="() => Model.MontoMensual" /></div>
+        </div>
+    </div>
+
+    <div class="mb-1 row">
+        <label class="col-sm-2 col-form-label">Monto Obra Anual:</label>
+        <div class="col-sm-10">
+            <label class="rz-textbox form-control rz-background-color-base-200" style="width: 300px">
+                @Model.MontoAnual.GetValueOrDefault().ToString("#,#0.##") </label>
+            <div><ValidationMessage For="() => Model.MontoAnual" /></div>
+        </div>
+    </div>
+    <div class="mb-1 row">
+        <div class="col-sm-2">
+            <label class="col-form-label">Archivo de Contrato:</label>
+            <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+        </div>
+        <div class="col-sm-10">
+            <CustomFileUpload @ref="upload"
+                              OnFileUploaded="HandleFileUploaded"
+                              OnFileDeleted="HandleFileDeletionRequested"
+                              OnError="HandleError"
+                              OnProgress="OnProgress"
+                              Files="@lstFiles"
+                              ReadOnly="@(!(tramite?.PermiteEditarEmpresa ?? false))"
+                              Accept="application/pdf">
+            </CustomFileUpload>
+            <ValidationMessage For="() => Model.IdFile" />
+        </div>
+    </div>
+
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            @if(tramite.PermiteEditarEmpresa)
+            {
+                if (!isBusyAceptar)
+                {
+                    <div class="d-flex flex-row justify-content-end">
+                        <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+                        <button type="submit" class="btn btn-success ms-1" style="width:120px">Guardar</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="spinner-border text-pink" role="status"></div>
+                }
+            }
+            else
+            {
+                <div class="d-flex flex-row justify-content-end">
+                    <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cerrar</button>
+                </div>
+            }
+        </div>
+    </div>
+</EditForm>
+
+
+

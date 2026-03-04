@@ -1,0 +1,76 @@
+﻿@page "/Tramites/IniciarCertificadoLicitar"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Empresa")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){ 
+            { "Quiero un certificado","" }
+}) />
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Pedido de Certificado para Licitar
+</h3>
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    
+    <div class="card mt-1">
+        <div class="card-header pt-1 pb-1 navbar-button">
+            <h4 class="card-title mb-0 p-1">Ingreso de datos</h4>
+        </div>
+        <div class="card-body">
+            <div class="card-body p-0 mb-1">
+
+                <div class="alert alert-warning">
+                    <div class="fs-5">
+                        En caso de que no encuentre los datos de la obra, deberá ingresar <a href="/Tramites/SolicitudObraParaLicitar">aquí</a>
+                        para enviar un mail con los datos de la obra por la cual quiere solicitar un certificado.
+                    </div>
+                </div>
+
+
+                <div class="mb-1 mt-3 row">
+                    <label class="col-sm-2 col-form-label">Obra a Licitar:</label>
+                    <div class="col-sm-10">
+
+                        <CustomRadzenDropDown class="form-control"
+                                              Name="ddlObras"
+                                              AllowFiltering=true
+                                              TextProperty="Descripcion"
+                                              ValueProperty="Id"
+                                              Data="@lstObras"
+                                              FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                              @bind-Value="@Model.IdObraPciaLP"
+                                               />
+
+                        <div>
+                            <ValidationMessage For="() => Model.IdObraPciaLP" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-1">
+        <div class="col-md-12">
+            @if (!isBusyAceptar)
+            {
+                <div class="d-flex flex-row justify-content-end">
+                    <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+                    <button type="submit" class="btn btn-success ms-1" >Iniciar trámite</button>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-row justify-content-end">
+                    <Spinner1 Text="Iniciando..." />
+                </div>
+
+            }
+        </div>
+    </div>
+
+</EditForm>

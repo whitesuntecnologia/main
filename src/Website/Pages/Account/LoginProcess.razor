@@ -1,0 +1,40 @@
+﻿@page "/LoginProcess/{Tokenregreso}"
+@layout AnonymousLayout
+
+
+<div class="position-absolute top-50 start-50 translate-middle ">
+    <div class="card">
+        <div class="card-body">
+            
+            @if(isLoading)
+            {
+                <h3>Procesando autorización SUU...</h3>
+            }
+            else
+            {
+                <h1>Aviso</h1>
+                @*<h3>Token: @Tokenregreso</h3>*@
+                <hr />
+                @if(!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <div class="alert alert-danger">
+                        @ErrorMessage
+                    </div>
+                    <a href="/" class="btn btn-violet">
+                        Ir al Login
+                    </a>
+                }
+                else
+                {
+                    <div class="alert alert-success">
+                        El usuario @usuarioLogueado ha iniciado sesión correctamente.
+                    </div>
+                    @if(!string.IsNullOrWhiteSpace(usuarioLogueado))
+                    {
+                        <div>Redirigiendo al Inicio...</div>
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>

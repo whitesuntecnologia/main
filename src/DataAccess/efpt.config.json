@@ -1,0 +1,409 @@
+﻿{
+   "CodeGenerationMode": 5,
+   "ContextClassName": "GLPContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": true,
+   "IrregularWords": null,
+   "MinimumProductVersion": "2.6.1301",
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Entities",
+   "PluralRules": null,
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "DataAccess",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "SingularRules": null,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[Empresas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasAntecedentes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasAntecedentesDDJJMensual]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasBalancesGenerales]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasBalancesGeneralesEvaluar]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasBienesRaices]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasCapEjec]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasCapProd]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasCapTecnica]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasCapTecxEquipo]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasConstanciaCap]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasDetalleObrasEjecucion]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasDeudas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasEquipos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasEspecialidades]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasEspecialidadesEquipos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasEspecialidadesSecciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasEspecialidadesTareas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasInf]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasInfDocumentos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasObras]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasObrasEjecucion]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasRepresentantesTecnicos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasRepresentantesTecnicosDesvinculaciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasRepresentantesTecnicosEspecialidades]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasRepresentantesTecnicosJurisdicciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmpresasSanciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Especialidades]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EspecialidadesEquipos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EspecialidadesSecciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EspecialidadesTareas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EspecilidadesRelSeccionesEquipos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EstadosEvaluacion]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Files]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[IndicesBancoCentral]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[IndicesCostoConstruccion]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[IndicesUnidadVivienda]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LogLoginSuu]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MatrizObrasEnEjecucion]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Menues]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MenuesPermisos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ObrasProvinciaLaPampa]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ObrasProvinciaLaPampa_ProcessInfo]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Parametros]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Perfiles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PerfilesPermisos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Permisos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Provincias]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RelUsuariosPerfiles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SituacionesBCRA]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TiposDeCaracterLegal]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TiposDeDocumentos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TiposDeObras]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TiposDeSociedad]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TiposDeTramite]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Tramites]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesAntecedentes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesAntecedentesDDJJMensual]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBalancesGenerales]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBalancesGeneralesEvaluar]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBalancesGeneralesEvaluarCapEjec]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBalancesGeneralesEvaluarCapProd]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBalancesGeneralesEvaluarCapTecnica]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBalancesGeneralesEvaluarCapTecxEquipo]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBalancesGeneralesEvaluarConstanciaCap]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBalancesGeneralesEvaluarDetalleObrasEjecucion]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesBienesRaices]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesEquipos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesEspecialidades]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesEspecialidadesEquipos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesEspecialidadesSecciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesEspecialidadesTareas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesEstados]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesFormulariosEvaluados]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesHistorialEstados]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesInfEmp]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesInfEmpCons]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesInfEmpConsDeudas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesInfEmpConsDocumentos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesInfEmpConsPersonas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesInfEmpDeudas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesInfEmpDocumentos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesNotificaciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesObras]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesObrasEjecucion]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesRepresentantesTecnicos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesRepresentantesTecnicosDesvinculaciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesRepresentantesTecnicosEspecialidades]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TramitesRepresentantesTecnicosJurisdicciones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[get_ExpedientesMop]",
+         "ObjectType": 1
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": false,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": true,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": true,
+   "UseT4Split": false
+}

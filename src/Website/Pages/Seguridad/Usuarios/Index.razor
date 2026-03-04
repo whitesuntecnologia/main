@@ -1,0 +1,164 @@
+﻿@page "/Seguridad/Usuarios"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Seguridad","/14" },
+                  {$"Usuarios",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Administración de usuarios de la plataforma
+</h3>
+    
+<div class="card mt-3">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <h4 class="card-title mb-0 p-1">B&uacute;squeda de usuarios</h4>
+    </div>
+    <div class="card-body">
+        <div class="card-body p-0 mb-1">
+
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="form-label">Usuario:</label>
+                    <RadzenTextBox @bind-Value="@Model.usuario" MaxLength="50" class="form-control" ></RadzenTextBox>
+                </div>
+            
+                <div class="col-sm-3">
+                
+                    <label class="form-label">Perfil:</label>
+                    <div>
+                    <CustomRadzenDropDown class="form-control"
+                                            AllowFiltering=false
+                                            AllowClear=true
+                                            TextProperty="Descripcion"
+                                            ValueProperty="Id"
+                                            Data="@lstPerfiles"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            @bind-Value="@Model.IdPerfil"
+                                             />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="form-label">Estado:</label>
+                    <div>
+                    <CustomRadzenDropDown class="form-control"
+                                            AllowFiltering=false
+                                            AllowClear=true
+                                            TextProperty="Descripcion"
+                                            ValueProperty="Id"
+                                            Data="@lstEstados"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            @bind-Value="@Model.IdEstado"
+                                             />
+                    </div>
+                </div>
+                <div class="col-sm-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-violet" @onclick=@BuscarClick>
+                        <span class="d-flex flex-row justify-content-between align-items-center">
+                            <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">search</span>
+                            <span>Buscar</span>
+                        </span>
+                    </button>
+                    <button type="button" class="btn btn-light ms-1" @onclick=@LimpiarClick>
+                        <span class="d-flex flex-row justify-content-between align-items-center">
+                            <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">filter_alt_off</span>
+                            <span>Limpiar</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-2">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Listado de usuarios</h4>
+            </div>
+            <div>
+                <button type="button" class="btn btn-violet" @onclick=@AgregarClick>
+                    <span class="d-flex flex-row justify-content-between align-items-center">
+                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                        <span>Agregar Usuario</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="card-body p-0 mb-1">
+            <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                <div class="d-flex flex-row justify-content-between align-items-center">
+                    <div>
+                        Cantidad de registros: @lstUsuarios.Count()
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-light" @onclick=@ExportarExcel > 
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">save_alt</span>
+                                <span>Exportar a Excel</span>
+                            </span>
+                        </button>
+                    </div>  
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid @ref=@grdUsuarios
+                                    Count="@lstUsuarios.Count"
+                                    Data="@lstUsuarios"
+                                    AllowSorting="true"
+                                    AllowPaging="false"
+                                    AllowColumnResize="true"
+                                    TItem="UsuarioDTO">
+                        <Columns>
+
+                            <RadzenDataGridColumn TItem="UsuarioDTO" Property="UserName" Title="Nombre Usuario / CUIT" Filterable="false" />
+                            <RadzenDataGridColumn TItem="UsuarioDTO" Property="NombreyApellido" Title="Nombre y Apellido" Filterable="false" />
+                            <RadzenDataGridColumn TItem="UsuarioDTO" Property="Email" Title="Email" Filterable="false" />
+                            <RadzenDataGridColumn TItem="UsuarioDTO" Property="NombreEstado" Title="Estado" Filterable="false" />
+                            <RadzenDataGridColumn TItem="UsuarioDTO" Property="Perfiles1Linea" Title="Perfiles" Filterable="false" />
+                            
+                            <RadzenDataGridColumn TItem="UsuarioDTO" Property="Id" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="130px">
+                                <Template Context="data">
+                                    <div class="ps-1">
+                                        <RadzenButton Click="@(e => EditarClick(data))"
+                                                      data-toggle="tooltip"
+                                                      data-placement="top"
+                                                      title="Editar"
+                                                      Icon="edit"
+                                                      ButtonType="ButtonType.Button"
+                                                      ButtonStyle="ButtonStyle.Light">
+
+                                        </RadzenButton>
+
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <EmptyTemplate>
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="material-icons" style="font-size:64px; color:lightgray">
+                                    block
+                                </span>
+                                <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                            </div>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+

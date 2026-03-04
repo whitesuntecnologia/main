@@ -1,0 +1,172 @@
+﻿@page "/Tramites/ObrasEjecucion/{Accion}/{IdentificadorUnico}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Pages.Shared
+@attribute [Authorize]
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/Visualizar/{IdentificadorUnico}" },
+                  { $"Formulario 12",""}
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/Visualizar/{IdentificadorUnico}" },
+                  { $"Formulario 12",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                      { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                      {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/Visualizar/{IdentificadorUnico}"},
+                      {$"Formulario 12",""}
+                      }) />
+}
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Tr&aacute;mite @(tramite?.IdTramite ?? 0) - Obras en ejecución -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+
+<div class="card mt-3">
+    <div class="card-header pt-2 pb-2 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Listado de Obras en ejecuci&oacute;n</h4>
+            </div>
+            <div>
+                @if (tramite != null && PermiteEditar && !SinDatosForm)
+                {
+                    <button type="button" class="btn btn-violet" @onclick=@AgregarObraClick>
+                        <span class="d-flex flex-row justify-content-between align-items-center">
+                            <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                            <span>Agregar Obra</span>
+                        </span>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="card-body p-0 mb-1">
+            <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                Cantidad de registros: @lstObras.Count
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid @ref="grdObras"
+                    Count="@lstObras.Count"
+                    Data="@lstObras"
+                    AllowSorting="true"
+                    AllowPaging="false"
+                    AllowColumnResize="true"
+                    TItem="TramitesObraEjecucionDTO">
+                        <Columns>
+
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="ObraNombre" Title="Denominación" Filterable="false" Width="350px" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="Ubicacion" Title="Ubicación" Filterable="false" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="Comitente" Title="Comitente" Filterable="false" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="NombreTipoObra" Title="Tipo de obra" Filterable="false" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="PeriodoBase" Title="Período Base" Filterable="false" />
+                            @*<RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="FechaInicio" Title="Fecha Inicio" Filterable="false" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="MontoMensual" Title="Monto Mensual" Filterable="false" TextAlign="TextAlign.Right" Width="170px" FormatString="{0:C2}" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="MontoAnual" Title="Monto Anual" Filterable="false" TextAlign="TextAlign.Right" Width="170px" FormatString="{0:C2}" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="TotalContratado" Title="Total Contratado" Filterable="false" TextAlign="TextAlign.Right" Width="170px" FormatString="{0:C2}" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="TotalCertificado" Title="Total Certificado" Filterable="false" TextAlign="TextAlign.Right" Width="170px" FormatString="{0:C2}" />
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="Saldo" Title="Saldo" Filterable="false" TextAlign="TextAlign.Right" Width="170px" FormatString="{0:C2}" />*@
+
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Width="150px" Title="Contrato" Sortable="false"
+                            Filterable="false" CssClass="text-right col-grid-right text-center"
+                            HeaderCssClass="text-center col-grid-right-x4">
+                                <Template Context="data">
+
+                                    @if (!IsBusyDownload)
+                                    {
+                                        <a @onclick=@(async () => await OnDownloadFileAsync(data.IdFile)) title="Descargar">
+                                            <span class="material-icons" style="cursor:pointer; font-size:30px; color: cornflowerblue">
+                                                cloud_download
+                                            </span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="TramitesObraEjecucionDTO" Property="IdTramiteObraEjec" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="130px">
+                                <Template Context="data">
+                                    <div class="ps-1">
+                                        <RadzenButton Click="@(e => EditarObraClick(data))"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                                      title=@(PermiteEditar ? "Editar": "Visualizar")
+                                                      Icon=@(PermiteEditar ? "edit": "visibility")
+                                        ButtonType="ButtonType.Button"
+                                        ButtonStyle="ButtonStyle.Light">
+
+                                        </RadzenButton>
+
+                                        <RadzenButton Click="@(e => EliminarObraClick(data))"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Eliminar"
+                                        Icon="delete"
+                                        ButtonType="ButtonType.Button"
+                                        ButtonStyle="ButtonStyle.Light"
+                                                      Visible="@(PermiteEditar)" />
+
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <EmptyTemplate>
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="material-icons" style="font-size:64px; color:lightgray">
+                                    block
+                                </span>
+                                <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                            </div>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+
+                    @if (lstObras.Count <= 0)
+                    {
+                        <div class="alert alert-info mt-2 d-inline-block">
+                            <RadzenCheckBox @bind-Value=@SinDatosForm
+                            name="chkSinDatos"
+                                            Disabled="@(!PermiteEditar)" />
+                            <RadzenLabel Text="Sin datos que informar por ser empresa nueva." Component="chkSinDatos" class="ms-1" />
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@if (tramite?.PermiteEditarFormulario(StaticClass.Constants.Formularios.ObrasEnEjecucion) ?? false)
+{
+    <FormEvaluacion 
+        IdentificadorUnico="@IdentificadorUnico" 
+        NroFormulario="12"
+        OnGuardarClick="GuardarEvaluacionClick"
+        OnCancelarClick="CancelarEvaluacionClick"
+        Visible="@EvaluandoTramite"
+        >
+    </FormEvaluacion>
+}

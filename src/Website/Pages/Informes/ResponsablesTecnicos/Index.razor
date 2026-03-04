@@ -1,0 +1,225 @@
+﻿@page "/Consultas/RepresentantesTecnicos"
+@using BlazorPro.Spinkit
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "ConsultasRepresentantesTecnicos")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {$"Informes","/29"},
+                  {$"Representantes Técnicos",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            @if (isBusyInitialLoading)
+            {
+                <h2>Cargando...</h2>
+            }
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+        <div class="d-flex flex-row justify-content-between">
+            <h3>
+                Representantes T&eacute;cnicos
+            </h3>
+        </div>
+        <div class="card mt-1">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <h4 class="card-title mb-0 p-1">B&uacute;squeda de T&eacute;cnicos</h4>
+            </div>
+            <div class="card-body">
+                <div class="card-body p-0 mb-1">
+                    <EditForm Model="@BusquedaModel">
+                        <Blazored.FluentValidation.FluentValidationValidator />
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">CUIT Representante:</label>
+                            <div class="col-4">
+                                <CustomRadzenNumeric TValue="decimal?"
+                                                     MaxIntegers="11"
+                                                     MaxDecimals="0"
+                                                     class="form-control"
+                                                     ShowUpDown="false"
+                                                     @bind-Value=@BusquedaModel.Cuit
+                                                     Placeholder="11 dígitos sin guiones" />
+                                <ValidationMessage For="() => BusquedaModel.Cuit" />
+                            </div>
+
+                            <label class="col-form-label col-2 text-end">Empresa:</label>
+                            <div class="col-4">
+                                <RadzenTextBox class="form-control"
+                                               MaxLength="100"
+                                @bind-Value=@BusquedaModel.RazonSocial />
+                                <ValidationMessage For="() => BusquedaModel.RazonSocial" />
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">Apellido:</label>
+                            <div class="col-4">
+                                <RadzenTextBox class="form-control"
+                                               MaxLength="100"
+                                               @bind-Value=@BusquedaModel.Apellido />
+                                <ValidationMessage For="() => BusquedaModel.Apellido" />
+                            </div>
+
+                            <label class="col-form-label col-2 text-end">Nombres:</label>
+                            <div class="col-4">
+                                <RadzenTextBox class="form-control"
+                                               MaxLength="100"
+                                               @bind-Value=@BusquedaModel.Nombres />
+                                <ValidationMessage For="() => BusquedaModel.Nombres" />
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">F. Vencimiento Matrícula Desde:</label>
+                            <div class="col-4">
+                                <RadzenDatePicker TValue="DateTime?"
+                                                  DateFormat="d"
+                                                  @bind-Value=@BusquedaModel.FechaVencimientoMatriculaDesde>
+                                </RadzenDatePicker>
+                                <ValidationMessage For="() => BusquedaModel.FechaVencimientoMatriculaDesde" />
+                            </div>
+
+                            <label class="col-form-label col-2 text-end">F. Vencimiento Matrícula Hasta:</label>
+                            <div class="col-4">
+                                <RadzenDatePicker TValue="DateTime?"
+                                                  DateFormat="d"
+                                                  @bind-Value=@BusquedaModel.FechaVencimientoMatriculaHasta>
+                                </RadzenDatePicker>
+                                <ValidationMessage For="() => BusquedaModel.FechaVencimientoMatriculaHasta" />
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">F. Vencimiento Contrato Desde:</label>
+                            <div class="col-4">
+                                <RadzenDatePicker TValue="DateTime?"
+                                                  DateFormat="d"
+                                @bind-Value=@BusquedaModel.FechaVencimientoContratoDesde>
+                                </RadzenDatePicker>
+                                <ValidationMessage For="() => BusquedaModel.FechaVencimientoContratoDesde" />
+                            </div>
+
+                            <label class="col-form-label col-2 text-end">F. Vencimiento Contrato Hasta:</label>
+                            <div class="col-4">
+                                <RadzenDatePicker TValue="DateTime?"
+                                                  DateFormat="d"
+                                @bind-Value=@BusquedaModel.FechaVencimientoContratoHasta>
+                                </RadzenDatePicker>
+                                <ValidationMessage For="() => BusquedaModel.FechaVencimientoContratoHasta" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-row align-items-end justify-content-center mt-2">
+                            <button type="button" class="btn btn-violet" @onclick=@BuscarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">search</span>
+                                    <span>Buscar</span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-light ms-1" @onclick=@LimpiarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">filter_alt_off</span>
+                                    <span>Limpiar</span>
+                                </span>
+                            </button>
+                        </div>
+
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card mt-3">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <div class="d-flex flex-row justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">Listado de Responsables T&Eacute;cnicos</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+
+                <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div>
+                            Cantidad de registros: @lstTecnicos.Count()
+                        </div>
+                        <div>
+
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Exportar <i class="mdi mdi-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu " data-popper-placement="bottom-start" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 38px);">
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarExcel>Excel</a>
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarCsv>Csv</a>
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarPdf>Pdf</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <RadzenDataGrid @ref=@grd Count="@lstTecnicos.Count"
+                                class="mt-1"
+                                Data="@lstTecnicos"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                AllowColumnResize="true"
+                                TItem="InformeRepresentanteTecnicoDTO"
+                                ColumnWidth="200px"
+                                PageSize="5"
+                                IsLoading="@isBusyGrid">
+                    <Columns>
+
+                        <RadzenDataGridColumn TItem="InformeRepresentanteTecnicoDTO" Property="Cuit" Title="CUIT" Filterable="false" Width="150px" />
+                        <RadzenDataGridColumn TItem="InformeRepresentanteTecnicoDTO" Property="Apellido" Title="Apellido/s" Filterable="false" />
+                        <RadzenDataGridColumn TItem="InformeRepresentanteTecnicoDTO" Property="Nombres" Title="Nombre/s" Filterable="false" />
+                        <RadzenDataGridColumn TItem="InformeRepresentanteTecnicoDTO" Property="RazonSocialEmpresa" Title="Razón Social" Filterable="false" Width="220px" CssClass="text-end pe-1" HeaderCssClass="text-end" />
+                        <RadzenDataGridColumn TItem="InformeRepresentanteTecnicoDTO" Property="FechaVencimientoMatricula" Title="Venc. Matrícula" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="150px" CssClass="text-end pe-3" HeaderCssClass="text-end" />
+                        <RadzenDataGridColumn TItem="InformeRepresentanteTecnicoDTO" Property="FechaVencimientoContrato" Title="Venc. Contrato" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="150px" CssClass="text-end pe-3" HeaderCssClass="text-end" />
+                        <RadzenDataGridColumn TItem="InformeRepresentanteTecnicoDTO" Property="Especialidades1Linea" Title="Especialidades" Filterable="false" Sortable="false" Width="300px">
+                            <Template Context="data">
+                                <p style="white-space:pre-wrap">
+                                    @data.Especialidades1Linea
+                                </p>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="InformeRepresentanteTecnicoDTO" Property="Tramites1Linea" Title="Trámites" Filterable="false" Sortable="false" Width="200px">
+                            <Template Context="data">
+                                <p style="white-space:pre-wrap">
+                                    @data.Tramites1Linea
+                                </p>
+                            </Template>
+                        </RadzenDataGridColumn>
+
+                    </Columns>
+                    <EmptyTemplate>
+                        <div class="d-flex flex-row align-items-center">
+                            <span class="material-icons" style="font-size:64px; color:lightgray">
+                                block
+                            </span>
+                            <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                        </div>
+                    </EmptyTemplate>
+                </RadzenDataGrid>
+
+
+
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>

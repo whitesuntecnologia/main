@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+
+@attribute [Authorize]
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <RadzenLayout Style="height: auto">
+        <RadzenBody class="mbottom30">
+
+
+            <div class="alert alert-info mb-3">
+                Plantilla de renuncia de representante t&eacute;cnico. 
+                Si desea desvincular a un representante t&eacute;cnico, debe presentar una nota de renuncia firmada por el mismo y adjuntarla en la opción de desvinculación.
+                <div>
+                    <a href="../NotaRenunciaRT.doc" target="_blank">Descargar Plantilla de Nota de renuncia</a>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-end">Archivo de Renuncia: <span class="text-danger">*</span></label>
+                <div class="col-sm-9">
+                    <CustomFileUpload @ref="upload"
+                                      OnFileUploaded="HandleFileUploaded"
+                                      OnFileDeleted="HandleFileDeletionRequested"
+                                      OnError="HandleError"
+                                      Files="@lstFiles"
+                                      Accept="application/pdf">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.IdFileDesvinculacion" />
+                </div>
+            </div>
+
+
+        </RadzenBody>
+        <RadzenFooter class="mt-3">
+
+            <div class="d-flex flex-row text-end justify-content-end">
+                @if (!isBusyAceptar)
+                {
+                    <button type="submit" class="btn btn-violet" style="width: 120px">Aceptar</button>
+                    <button type="button" class="btn btn-light" @onclick="OnClickCancelar" style="width: 120px">Cancelar</button>
+                }
+                else
+                {
+                    <Spinner1 Text="Guardando..." />
+                }
+            </div>
+
+        </RadzenFooter>
+
+    </RadzenLayout>
+</EditForm>

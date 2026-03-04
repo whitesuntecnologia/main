@@ -1,0 +1,74 @@
+﻿@using StaticClass;
+
+@if(Visible)
+{
+
+<EditForm Model="@Model" OnSubmit="OnClickGuardar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+    
+<div class="card mt-3">
+    <div class="card-header pt-2 pb-2 navbar-button" >
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Evaluación del formulario</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+
+        <div class="row">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Wrap="FlexWrap.Wrap">
+                <label class="col-form-label">Estado:</label>
+                    <CustomRadzenDropDown Style="width:300px"
+                                          Name="ddlMeses"
+                                          AllowFiltering=false
+                                          TextProperty="Descripcion"
+                                          ValueProperty="Id"
+                                          Data="@lstEstados"
+                                          FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                          @bind-Value="@Model.IdEstadoEvaluacion" />
+
+                    <label class="col-form-label">
+                            <ValidationMessage For="() => Model.IdEstadoEvaluacion"  />
+                    </label>
+            </RadzenStack>
+            
+
+        </div>
+
+        @if (Model.IdEstadoEvaluacion == (int)Constants.EstadosEvaluacion.Notificar)
+        {
+            <div class="row mt-2">
+                <div class="col-sm-12">
+                        <label>Observaciones: </label>
+                        <RadzenTextArea class="w-100"
+                                        @bind-value=@Model.MensajeNotificacion
+                                        MaxLength="2500"
+                                        Rows="6"
+                                        Change=@( args => ReValidate("MensajeNotificacion"))
+                                        />
+                </div>
+                <div>
+                     <ValidationMessage For="() => Model.MensajeNotificacion" />
+                </div>
+
+            </div>
+        }
+
+        @if(!isBusyGuardando)
+        {
+         <div class="d-flex flex-row justify-content-start mt-3">
+            <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+            <button type="submit" class="btn btn-success ms-1" style="width:120px">Guardar</button>
+        </div>
+        }
+        else
+        {
+            <Spinner1 Text="Guardando..." ></Spinner1>
+        }
+
+    </div>
+</div>
+
+</EditForm>
+}

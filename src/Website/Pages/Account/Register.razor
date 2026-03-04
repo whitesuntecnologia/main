@@ -1,0 +1,47 @@
+﻿@page "/Account/Register"
+@layout AnonymousLayout
+
+<EditForm Model="@registerModel" OnValidSubmit="Registering">
+    <DataAnnotationsValidator />
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <div class="position-absolute top-50 start-50 translate-middle ">
+        <div class="card">
+            <div class="card-body">
+                <h1>Registro de Usuario</h1>
+                <h3>Cree un usuario para ingresar al sistema.</h3>
+                <hr />
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                <div class="form-floating mb-3">
+                    <label class="form-label" style="margin-top:-10px">Usuario</label>
+                    <RadzenTextBox AutoComplete="false" class="form-control" Placeholder="Usuario" @bind-Value="@registerModel.Username" />
+                    <ValidationMessage For="() => registerModel.Username" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <label class="form-label" style="margin-top:-10px">Contrase&ntilde;a</label>
+                    <RadzenPassword class="form-control" AutoComplete="false" Placeholder="Contraseña" @bind-Value="@registerModel.Password" />
+                    <ValidationMessage For="() => registerModel.Password" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <label class="form-label" style="margin-top:-10px">Email</label>
+                    <RadzenTextBox class="form-control" AutoComplete="false" Placeholder="Email" @bind-Value="@registerModel.Email" />
+                    <ValidationMessage For="() => registerModel.Email" />
+                </div>
+
+                <div>
+                    <RadzenButton ButtonType="ButtonType.Submit" lass="w-100 btn btn-lg btn-primary" Text="Crear Usuario"></RadzenButton>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <div class="alert alert-danger mt-2">
+                        @ErrorMessage
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</EditForm>
+

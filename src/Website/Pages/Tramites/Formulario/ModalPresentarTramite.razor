@@ -1,0 +1,23 @@
+﻿@inject DialogService dialogService
+
+<hr class="mb-2" style="margin-top: -15px;" />
+<div class="d-flex flex-row justify-content-start align-items-center">
+    <div>
+        <span class="material-icons text-violet fs-64">
+            sd_card_alert
+        </span>
+    </div>
+    <div class="ps-3">
+        
+        <h5>Se ha finalizado la carga de toda la información solicitada</h5>
+        <h5>Esta información será enviada para su evaluación al Registro de Licitadores.</h5>
+        <h5>Una vez evaluada, le será notificado el resultado.</h5>
+    </div>
+
+</div>
+
+<div class="d-flex flex-row text-end justify-content-end mt-2">
+    <button type="button" class="btn btn-success " @onclick="@((args) => dialogService.Close(true))" >Aceptar y Enviar</button>
+    <button type="button" class="btn btn-light ms-1" @onclick="@((args) => dialogService.Close(false))" style="width: 120px">Cancelar</button>
+</div>
+

@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+<hr class="mt-1 mb-0" />
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <DataAnnotationsValidator />
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <RadzenLayout Style="height: auto">
+        <RadzenBody class="mb-3">
+            <div class="mb-2 row">
+                <label class="col-3 col-form-label text-end">Apellido/s:</label>
+                <div class="col-9">
+                    <RadzenTextBox class="form-control w-100" MaxLength="50" @bind-Value=@Model.Apellidos></RadzenTextBox>
+                    <ValidationMessage For="() => Model.Apellidos" />
+                </div>
+            </div>
+            <div class="mb-2 row">
+                <label class="col-3 col-form-label text-end">Nombres/s:</label>
+                <div class="col-9">
+                    <RadzenTextBox class="form-control w-100" MaxLength="100" @bind-Value=@Model.Nombres></RadzenTextBox>
+                    <ValidationMessage For="() => Model.Nombres" />
+                </div>
+            </div>
+            <div class="mb-1 row">
+                <label class="col-3 col-form-label text-end">Tipo de Carácter Legal:</label>
+                <div class="col-9">
+                    <CustomRadzenDropDown class="w-100"
+                                          Name="ddlTipoCaracterLegal"
+                                          AllowFiltering=false
+                                          TextProperty="Descripcion"
+                                          ValueProperty="Id"
+                                          Data="@lstTiposDeCaracterLegal"
+                                          FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                          @bind-Value="@Model.IdTipoCaracterLegal" />
+
+                    <ValidationMessage For="() => Model.IdTipoCaracterLegal" />
+                </div>
+            </div>
+            <div class="mb-1 row">
+                <label class="col-3 col-form-label text-end">D.N.I.:</label>
+                <div class="col-9">
+                    <NumericBox TValue="int?"
+                                MaxIntegers="8"
+                                MaxDecimals="0"
+                                class="rz-textbox form-control"
+                                Style="width:300px"
+                                @bind-Value=@Model.NroDni
+                                />
+                    <ValidationMessage For="() => Model.NroDni" />
+                </div>
+            </div>
+
+
+        </RadzenBody>
+        <RadzenFooter class="mt-3">
+            <div class="d-flex flex-row text-end justify-content-end">
+                @if (!isBusyAceptar)
+                {
+                    <button type="submit" class="btn btn-violet" style="width: 120px">Aceptar</button>
+                    <button type="button" class="btn btn-light" @onclick="@((args) => dialogService.Close(false))" style="width: 120px">Cancelar</button>
+                }
+                else
+                {
+                    <div class="spinner-border text-pink" role="status"></div>
+                }
+            </div>
+
+        </RadzenFooter>
+
+    </RadzenLayout>
+</EditForm>

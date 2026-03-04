@@ -1,0 +1,153 @@
+﻿@page "/Tramites/Pago/{Accion}/{IdentificadorUnico}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Pages.Shared
+@attribute [Authorize]
+
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}"},
+                    {$"Boleta de Pago",""}
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}"},
+                  {$"Boleta de Pago",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                      { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                      {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/{Accion}/{IdentificadorUnico}"},
+                      {$"Boleta de Pago",""}
+                      }) />
+}
+
+
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Tr&aacute;mite @tramite?.IdTramite - Boleta de Pago -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+<EditForm Model="@Model" OnSubmit="OnClickGuardar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <div class="card mt-3">
+        <div class="card-header pt-2 pb-2 navbar-button">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0">Información de la Boleta de Pago de la inscripción/actualización</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label">Nro. de Boleta:</label>
+                <div class="col-sm-10 mt-1">
+
+                    <CustomRadzenNumeric class="form-control"
+                    TValue="int?"
+                    MaxIntegers="10"
+                    MaxDecimals="0"
+                    ShowUpDown="false"
+                    @bind-value=@Model.NroBoleta
+                    Change=@( args => ReValidate("Expediente"))
+                                         Disabled="@(!PermiteEditar)" />
+                    <ValidationMessage For="() => Model.NroBoleta" />
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <div class="col-sm-2">
+                    <label class="col-form-label">Boleta y Pago:</label>
+                    <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                </div>
+                <div class="col-sm-10">
+                    <CustomFileUpload @ref="upload"
+                    OnFileUploaded="HandleFileUploaded"
+                    OnFileDeleted="HandleFileDeletionRequested"
+                    OnError="HandleError"
+                    OnProgress="OnProgress"
+                    Files="@lstFiles"
+                                      ReadOnly="@(!PermiteEditar)"
+                    Accept="application/pdf">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.IdFileBoleta" />
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <div class="col-sm-2">
+                    <label class="col-form-label">Certificado de Cumplimiento Fiscal:</label>
+                    <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                </div>
+                <div class="col-sm-10">
+                    <CustomFileUpload @ref="uploadCF"
+                    OnFileUploaded="HandleFileUploadedCF"
+                    OnFileDeleted="HandleFileDeletionRequestedCF"
+                    OnError="HandleErrorCF"
+                    OnProgress="OnProgressCF"
+                    Files="@lstFilesCF"
+                                      ReadOnly="@(!PermiteEditar)"
+                    Accept="application/pdf">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.IdFileCumplimientoFiscal" />
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    @if (!EvaluandoTramite)
+                    {
+                        if (PermiteEditar)
+                        {
+                            if (!IsBusyGuardar)
+                            {
+                                <div class="d-flex flex-row justify-content-end">
+                                    <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@VolverAlVisor>Cancelar</button>
+                                    <button type="submit" class="btn btn-success ms-1" style="width:120px">Guardar</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <Spinner1 Text="Guardando..."></Spinner1>
+                            }
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-row justify-content-end">
+                                <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@VolverAlVisor>Cerrar</button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+@if (tramite?.PermiteEditarFormulario(StaticClass.Constants.Formularios.BoletaPago) ?? false)
+{
+    <FormEvaluacion 
+        IdentificadorUnico="@IdentificadorUnico" 
+        NroFormulario="0"
+        OnGuardarClick="GuardarEvaluacionClick"
+        OnCancelarClick="CancelarEvaluacionClick"
+        Visible="@EvaluandoTramite"
+        >
+    </FormEvaluacion>
+}

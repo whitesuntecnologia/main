@@ -1,0 +1,98 @@
+﻿@page "/Parametros/ICC"
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+
+@attribute [Authorize(Roles = "ICCEditar")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Parametros","/17" },
+                  {$"Índices del Costo de la Construcción",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Administración de los Índices del Costo de la Construcción
+</h3>
+
+<div class="card mt-3">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Listado de Índices</h4>
+            </div>
+            <div>
+                
+                <button type="button" class="btn btn-violet" @onclick=@AgregarClick>
+                    <span class="d-flex flex-row justify-content-between align-items-center">
+                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                        <span>Agregar Índice</span>
+                    </span>
+                </button>
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="card-body p-0 mb-1">
+            <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                Cantidad de registros: @lstIndices.Count()
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid @ref="grdIndices"
+                                    Count="@lstIndices.Count"
+                                    Data="@lstIndices"
+                                    AllowSorting="true"
+                                    AllowPaging="false"
+                                    AllowColumnResize="true"
+                                    TItem="IndiceCostoConstruccionDTO">
+                        <Columns>
+
+                            <RadzenDataGridColumn TItem="IndiceCostoConstruccionDTO" Property="Mes" Title="Mes" Filterable="false" />
+                            <RadzenDataGridColumn TItem="IndiceCostoConstruccionDTO" Property="Anio" Title="Año" Filterable="false" />
+                            <RadzenDataGridColumn TItem="IndiceCostoConstruccionDTO" Property="Valor" Title="Valor" FormatString="{0:F2}" Filterable="false" />
+                            <RadzenDataGridColumn TItem="IndiceCostoConstruccionDTO" Property="IdTramiteObraEjec" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="130px">
+                                <Template Context="data">
+                                    <div class="ps-1">
+                                        <RadzenButton Click="@(e => EditarClick(data))"
+                                                      data-toggle="tooltip"
+                                                      data-placement="top"
+                                                      title="Editar"
+                                                      Icon="edit"
+                                                      ButtonType="ButtonType.Button"
+                                                      ButtonStyle="ButtonStyle.Light">
+
+                                        </RadzenButton>
+                            
+                                        <RadzenButton Click="@(e => EliminarObraClick(data))"
+                                                      data-toggle="tooltip"
+                                                      data-placement="top"
+                                                      title="Eliminar"
+                                                      Icon="delete"
+                                                      ButtonType="ButtonType.Button"
+                                                      ButtonStyle="ButtonStyle.Light"
+                                                      />
+
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <EmptyTemplate>
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="material-icons" style="font-size:64px; color:lightgray">
+                                    block
+                                </span>
+                                <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                            </div>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+

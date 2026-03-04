@@ -1,0 +1,45 @@
+﻿@using DataTransferObject
+
+@if(lstObservaciones.Count > 0)
+{
+   <div class="card mt-2">
+        <div class="card-header pt-1 pb-1 navbar-button" >
+            <div class="d-flex flex-row justify-content-between align-items-center" style="height:30px">
+                <div>
+                    <h4 class="card-title mb-0">Observaciones del tr&aacute;mite</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+        
+            <RadzenDataGrid 
+                            Count="@lstObservaciones.Count"
+                            Data="@lstObservaciones"
+                            AllowSorting="false"
+                            AllowPaging="true"
+                            AllowColumnResize="true"
+                            PageSize="30"
+                            TItem="TramiteFormularioEvaluadoDTO">
+
+                <Columns>
+
+                    <RadzenDataGridColumn TItem="TramiteFormularioEvaluadoDTO" Property="NroNotificacion" Title="Presentación" Width="100px" CssClass="text-center" HeaderCssClass="text-center" />
+                    <RadzenDataGridColumn TItem="TramiteFormularioEvaluadoDTO" Property="NroFormulario" Title="Formulario" Width="130px" CssClass="text-center" HeaderCssClass="text-center" />
+                    <RadzenDataGridColumn TItem="TramiteFormularioEvaluadoDTO" Property="CreateDate" Title="Fecha" Width="170px" CssClass="text-center" HeaderCssClass="text-center" />
+                    <RadzenDataGridColumn TItem="TramiteFormularioEvaluadoDTO" Property="MensajeNotificacion" Title="Observación" >
+                        <Template Context="data">
+                            <div style="white-space: pre-line;">
+                                @data.MensajeNotificacion
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                </Columns>
+                <EmptyTemplate>
+                    <p>No hay registros</p>
+                </EmptyTemplate>
+            </RadzenDataGrid>
+        </div>
+    </div>
+}

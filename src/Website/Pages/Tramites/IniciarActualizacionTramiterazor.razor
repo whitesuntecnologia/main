@@ -1,0 +1,32 @@
+﻿@page "/Tramites/IniciarTramiteActualizacion/{IdTipoTramite:int}"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Empresa")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){ { "Actualizar Trámite","" } }) />
+
+@if (InscripcionNoAprobada )
+{
+
+    <div class="alert alert-info mt-3">
+        <h3>Tipo de trámite:  <span class="text-warning">@TipoDeTramite</span></h3>
+        <h3>No es posible iniciar un nuevo trámite de actualización ya que el usuario NO posee un trámite de inscripción aprobado.</h3>
+    </div>
+}
+
+@if (tramitePendiente != null)
+{
+    <div class="alert alert-info mt-3">
+        <h3>Tipo de trámite:  <span class="text-warning">@TipoDeTramite</span></h3>
+        <h3>No es posible iniciar un nuevo trámite de actualización ya que el usuario posee un trámite pendiente de resoluci&oacute;n.</h3>
+        <h3>El trámite es el Nro. <a href="/Tramites/Visualizar/@(tramitePendiente.IdentificadorUnico)">@tramitePendiente.IdTramite</a>.</h3>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(mensajeValidacionActualizacion))
+{
+    <div class="alert alert-info mt-3">
+        <h3>Tipo de trámite:  <span class="text-warning">@TipoDeTramite</span></h3>
+        <h3>@mensajeValidacionActualizacion</h3>
+    </div>
+}
+

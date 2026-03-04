@@ -1,0 +1,42 @@
+﻿@page "/Account/LoginZ"
+@using Microsoft.AspNetCore.Authorization;
+@layout AnonymousLayout
+
+@attribute [AllowAnonymous]
+<EditForm Model="@loginModel" OnSubmit="LoginIn">
+    <DataAnnotationsValidator />
+
+    <div class="position-absolute top-50 start-50 translate-middle ">
+        <div class="card">
+            <div class="card-body">
+                <h1>Inicio de sesión</h1>
+                <h3>Use una cuenta local para iniciar sesión.</h3>
+                <hr />
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                <div class="form-floating mb-3">
+                    <label class="form-label" style="margin-top:-10px">Usuario</label>
+                    <RadzenTextBox AutoComplete="false" class="form-control" Placeholder="Usuario" @bind-Value="@loginModel.Username" />
+                    <ValidationMessage For="() => loginModel.Username" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <label class="form-label" style="margin-top:-10px">Contrase&ntilde;a</label>
+                    <RadzenPassword class="form-control" AutoComplete="false" Placeholder="Contraseña" @bind-Value="@loginModel.Password" />
+                    <ValidationMessage For="() => loginModel.Password" />
+                </div>
+                <div>
+                    <RadzenButton ButtonType="ButtonType.Submit" lass="w-100 btn btn-lg btn-primary" Text="Acceder"></RadzenButton>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <div class="alert alert-danger mt-2">
+                        @ErrorMessage
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</EditForm>
+

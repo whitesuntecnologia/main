@@ -1,0 +1,84 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+<style>
+    .rz-checkbox { margin: 0.25rem 0 !important; }
+</style>
+<hr class="mt-1 mb-0" />
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <DataAnnotationsValidator />
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <RadzenLayout Style="height: auto">
+        <RadzenBody>
+            <div class="mb-1 row">
+                <div class="col-6">
+                    <label class="col-sm-2 col-form-label">Especialidad</label>
+            
+                    <CustomRadzenDropDown class="form-control"
+                                            Name="ddlEspecialidad"
+                                            AllowFiltering=true
+                                            TextProperty="Descripcion"
+                                            ValueProperty="Id"
+                                            Data="@lstEspecialidades"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            @bind-Value="@Model.IdEspecialidadSelected"
+                                            Disabled="@(IdTramiteEspecialidad.HasValue || !tramite.PermiteEditarEmpresa)"
+                                            Change="@( async(args) => await OnChangeEspecialidades(args))" />
+
+                    <div><ValidationMessage For="() => Model.IdEspecialidadSelected" /></div>
+                </div>
+
+                <div class="col-6">
+                    <label class="col-sm-2 col-form-label">Sección</label>
+
+                    <CustomRadzenDropDown class="form-control"
+                                          Name="ddlSeccion"
+                                          AllowFiltering=true
+                                          TextProperty="Descripcion"
+                                          ValueProperty="Id"
+                                          Data="@lstSecciones"
+                                          FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                          @bind-Value="@Model.IdSeccionSelected"
+                                          Disabled="@(IdTramiteEspecialidad.HasValue || !tramite.PermiteEditarEmpresa)"
+                                          Change="@( async(args) => await OnChangeSecciones(args))" />
+
+                    <div><ValidationMessage For="() => Model.IdSeccionSelected" /></div>
+                </div>
+            </div>
+            <RadzenPanel class="mb-1 row rz-shadow-0" Visible="@(lstTareas.Any())">
+
+                <div class="col-sm-12">
+                    <RadzenBadge Variant="Variant.Text" BadgeStyle="BadgeStyle.Primary" Text="Lista de Tareas" />
+                    <RadzenCheckBoxList Orientation="Orientation.Vertical" class="mb-0"
+                                        Data="@lstTareas"
+                                        @bind-Value="@Model.IdTareasSeleccted"
+                                        ValueProperty="Id"
+                                        TextProperty="Descripcion" 
+                                        Disabled=@(!tramite.PermiteEditarEmpresa)
+                                        />
+
+                    <div><ValidationMessage For="() => Model.IdTareasSeleccted" /></div>
+                </div>
+
+            </RadzenPanel>
+
+
+        </RadzenBody>
+        <RadzenFooter>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    @if (tramite.PermiteEditarEmpresa)
+                    {
+                        <button type="submit" class="btn btn-violet" style="width: 120px">Aceptar</button>
+                    }
+                    <button type="button" class="btn btn-light" @onclick="@((args) => dialogService.Close(false))" style="width: 120px">@(tramite.PermiteEditarEmpresa ? "Cancelar" : "Cerrar")</button>
+                </div>
+            </div>
+
+        </RadzenFooter>
+    </RadzenLayout>
+</EditForm>
+
+
+

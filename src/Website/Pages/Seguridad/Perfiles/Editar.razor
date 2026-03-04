@@ -1,0 +1,55 @@
+﻿@page "/Seguridad/Perfiles/Editar/{IDPerfil:int}"
+@using DataTransferObject;
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Seguridad","/14" },
+                  {$"Perfiles","/Seguridad/Perfiles"},
+                  {$"Editar Perfil",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+
+<h3 >
+    Editar permisos del perfil @perfilDTO?.Nombre
+</h3>
+
+<RadzenTree Data="@lstMenues"
+            AllowCheckBoxes="true"
+            class="mt-1 "
+             
+            @bind-CheckedValues=@CheckedValues>
+
+    <RadzenTreeLevel TextProperty="Descripcion" 
+        
+            ChildrenProperty="SubMenues"
+            Expanded=@(x => true )
+                     HasChildren="@( e => ((MenuTreeDTO) e).SubMenues.Any())"></RadzenTreeLevel>
+
+@*    <RadzenTreeLevel TextProperty="Descripcion" 
+            ChildrenProperty="Permisos"
+            Expanded=@(x => true )
+                     HasChildren="@( e => ((MenuTreeDTO) e).Permisos.Any())"></RadzenTreeLevel>
+*@
+
+</RadzenTree>
+
+
+<div class="row mt-2">
+    <div class="col-md-12">
+        @if (!isBusyAceptar)
+        {
+            <div class="d-flex flex-row justify-content-end">
+                <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+                    <button type="submit" class="btn btn-success ms-1" style="width:120px" @onclick=@OnClickGuardar>Guardar</button>
+            </div>
+        }
+        else
+        {
+            <Spinner1 Text="Guardando..." />
+        }
+        
+    </div>
+</div>
+
+
+

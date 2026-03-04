@@ -1,0 +1,256 @@
+﻿@page "/Tramites/BienesRaices/{Accion}/{IdentificadorUnico}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Pages.Shared
+@attribute [Authorize]
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 8",""}
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 8",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/{Accion}/{IdentificadorUnico}"},
+                  {$"Formulario 8",""}
+                  }) />
+}
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Tr&aacute;mite @tramite?.IdTramite - Inmuebles -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+<EditForm EditContext="@context" OnSubmit="OnClickAceptar" >
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    @*Afectado*@
+    <div class="card mt-3">
+        <div class="card-header pt-2 pb-2 navbar-button">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0">Inmuebles de propiedad de la empresa - AFECTADO</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label">Monto:</label>
+                <div class="col-sm-10">
+                    <NumericBox TValue="decimal?" 
+                    MaxIntegers="10" 
+                    MaxDecimals="2" 
+                    class="form-control rz-textbox"
+                    Style="width:300px"
+                                Disabled="@(!PermiteEditar || Model.SinDatosForm8)"
+                    @bind-Value="@Model.Afectado.MontoRealizacion" 
+                    />
+                    <div><ValidationMessage For="() => Model.Afectado.MontoRealizacion" /></div>
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <div class="col-sm-2">
+                    <label class="col-form-label">Detalle de los Inmuebles:</label>
+                    <h4><span class="badge badge-outline-danger">Archivo Excel</span></h4>
+                </div>
+                <div class="col-sm-10">
+                    <CustomFileUpload @ref="uploadDE1"
+                    OnFileUploaded="HandleFileUploadedDE"
+                    OnFileDeleted="HandleFileDeletionRequestedDE"
+                    OnError="HandleErrorDE"
+                    OnProgress="OnProgressDE"
+                    Files="@lstFilesDE1"
+                                      ReadOnly="@(!PermiteEditar || Model.SinDatosForm8)"
+                    Accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.Afectado.IdFileDetalleInmueble" />
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <div class="col-sm-2">
+                    <label class="col-form-label">Certificado Contable:</label>
+                    <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                </div>
+                <div class="col-sm-10">
+                    <CustomFileUpload @ref="uploadCC1"
+                    OnFileUploaded="HandleFileUploadedCC"
+                    OnFileDeleted="HandleFileDeletionRequestedCC"
+                    OnError="HandleErrorCC"
+                    OnProgress="OnProgressCC"
+                    Files="@lstFilesCC1"
+                                      ReadOnly="@(!PermiteEditar || Model.SinDatosForm8)"
+                    Accept="application/pdf,">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.Afectado.IdFileCertificadoContable" />
+                </div>
+            </div>
+
+            @if (EvaluandoTramite)
+            {
+                <div class="mb-1 row">
+                    <label class="col-sm-2 col-form-label">Nuevo Monto:</label>
+                    <div class="col-sm-10">
+                        <NumericBox TValue="decimal?"
+                        MaxIntegers="10"
+                        MaxDecimals="2"
+                        class="rz-textbox form-control"
+                        Style="width:300px"
+                        @bind-Value=@Model.Afectado.MontoRealizacionEvaluador
+                        Disabled="@(!EvaluandoTramite)" />
+
+                        <div><ValidationMessage For="() => Model.Afectado.MontoRealizacionEvaluador" /></div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <div class="d-flex flex-row text-end justify-content-start">
+        <div>
+            <RadzenCheckBox class="mt-1"
+            @bind-Value=@Model.SinDatosForm8
+                            Disabled="@(!PermiteEditar)"
+            name="chkSinDatos" />
+            <RadzenLabel Text="La Empresa no posee inmuebles afectados a declarar." Component="chkSinDatos" class="ms-1 mt-1" />
+        </div>
+
+    </div>
+
+    @*NO Afectado*@
+    <div class="card mt-3">
+        <div class="card-header pt-2 pb-2 navbar-button">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0">Inmuebles de propiedad de la empresa - NO AFECTADO</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-1 row">
+                <label class="col-sm-2 col-form-label">Monto:</label>
+                <div class="col-sm-10">
+                    <NumericBox TValue="decimal?"
+                    MaxIntegers="10"
+                    MaxDecimals="2"
+                    class="form-control rz-textbox"
+                    Style="width:300px"
+                                Disabled="@(!PermiteEditar)"
+                    @bind-Value="@Model.NoAfectado.MontoRealizacion"
+
+                    />
+                    <div><ValidationMessage For="() => Model.NoAfectado.MontoRealizacion" /></div>
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <div class="col-sm-2">
+                    <label class="col-form-label">Detalle de los Inmuebles:</label>
+                    <h4><span class="badge badge-outline-danger">Archivo Excel</span></h4>
+                </div>
+                <div class="col-sm-10">
+                    <CustomFileUpload @ref="uploadDE2"
+                    OnFileUploaded="HandleFileUploadedDE2"
+                    OnFileDeleted="HandleFileDeletionRequestedDE2"
+                    OnError="HandleErrorDE2"
+                    OnProgress="OnProgressDE2"
+                    Files="@lstFilesDE2"
+                                      ReadOnly="@(!PermiteEditar)"
+                    Accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.NoAfectado.IdFileDetalleInmueble" />
+                </div>
+            </div>
+
+            <div class="mb-1 row">
+                <div class="col-sm-2">
+                    <label class="col-form-label">Certificado Contable:</label>
+                    <h4><span class="badge badge-outline-danger">Archivo Pdf</span></h4>
+                </div>
+                <div class="col-sm-10">
+                    <CustomFileUpload @ref="uploadCC2"
+                    OnFileUploaded="HandleFileUploadedCC2"
+                    OnFileDeleted="HandleFileDeletionRequestedCC2"
+                    OnError="HandleErrorCC2"
+                    OnProgress="OnProgressCC2"
+                    Files="@lstFilesCC2"
+                                      ReadOnly="@(!PermiteEditar)"
+                    Accept="application/pdf,">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.NoAfectado.IdFileCertificadoContable" />
+                </div>
+            </div>
+
+            @if (EvaluandoTramite)
+            {
+                <div class="mb-1 row">
+                    <label class="col-sm-2 col-form-label">Nuevo Monto:</label>
+                    <div class="col-sm-10">
+                        <NumericBox TValue="decimal?"
+                        MaxIntegers="10"
+                        MaxDecimals="2"
+                        class="rz-textbox form-control"
+                        Style="width:300px"
+                        @bind-Value=@Model.NoAfectado.MontoRealizacionEvaluador
+                        Disabled="@(!EvaluandoTramite)" />
+
+                        <div><ValidationMessage For="() => Model.NoAfectado.MontoRealizacionEvaluador" /></div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+
+
+
+    <div class="d-flex flex-row text-end justify-content-end">
+
+        @if (PermiteEditar)
+        {
+            if (!isBusyAceptar)
+            {
+                <button type="submit" class="btn btn-success" style="width: 120px">Guardar</button>
+            }
+            else
+            {
+                <Spinner1 Text="Guardando..."></Spinner1>
+            }
+        }
+    </div>
+
+
+</EditForm>
+
+@if (tramite?.PermiteEditarFormulario(StaticClass.Constants.Formularios.BienesRaices) ?? false)
+{
+    <FormEvaluacion 
+        IdentificadorUnico="@IdentificadorUnico" 
+        NroFormulario="8"
+        OnGuardarClick="GuardarEvaluacionClick"
+        OnCancelarClick="CancelarEvaluacionClick"
+        Visible="@EvaluandoTramite"
+        >
+    </FormEvaluacion>
+}

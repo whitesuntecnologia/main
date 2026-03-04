@@ -1,0 +1,48 @@
+﻿@page "/Tramites/BalanceGeneral/{AccionFormAnterior}/{IdentificadorUnico}/{Accion}/{IdTramiteBalanceGeneral:int?}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Iniciar Trámite","/Tramites/IniciarTramite" },
+                  {"Consulta de trámites","/Tramites/ConsultarTramites"},
+                  {$"Trámite {tramite?.IdTramite}",$"/Tramites/{IdentificadorUnico}"},
+                  {$"Formulario 6",$"/Tramites/BalanceGeneral/{AccionFormAnterior}/{IdentificadorUnico}"},
+                  {$"{Accion} Balance General",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Tr&aacute;mite @tramite?.IdTramite - @Accion Balance General -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+
+
+<EditForm Model="@Model" OnSubmit="OnClickGuardar">
+    <DataAnnotationsValidator />
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    
+    <BalanceGeneralDatos Model="@Model" ReadOnly="false">
+    </BalanceGeneralDatos>
+
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            @if (!IsBusyGuardar)
+            {
+                <div class="d-flex flex-row justify-content-end">
+                    <button type="button" class="btn btn-secondary" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+                    <button type="submit" class="btn btn-success ms-1" style="width:120px">Guardar</button>
+                </div>
+            }
+            else
+            {
+                <Spinner1 Text="Guardando..."></Spinner1>
+            }
+        </div>
+    </div>
+
+</EditForm>

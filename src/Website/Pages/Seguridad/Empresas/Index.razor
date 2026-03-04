@@ -1,0 +1,100 @@
+﻿@page "/Seguridad/Empresas"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "UVIEditar")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Seguridad","/14" },
+                  {$"Empresas",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Administración de la Vinculación de empresas y representantes
+</h3>
+
+<div class="card mt-3">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Listado de Relaciones entre empresas y representantes</h4>
+            </div>
+            <div>
+
+                <button type="button" class="btn btn-violet" @onclick=@AgregarClick>
+                    <span class="d-flex flex-row justify-content-between align-items-center">
+                        <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                        <span>Agregar Empresa</span>
+                    </span>
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="card-body p-0 mb-1">
+            <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                Cantidad de registros: @lstEmpresas.Count()
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid @ref="grdEmpresas"
+                                    Count="@lstEmpresas.Count"
+                                    Data="@lstEmpresas"
+                                    AllowSorting="true"
+                                    AllowPaging="false"
+                                    AllowColumnResize="true"
+                                    TItem="EmpresaDTO">
+                        <Columns>
+
+                            <RadzenDataGridColumn TItem="EmpresaDTO" Property="CuitEmpresa" Title="Empresa" Filterable="false" Width="150px" />
+                            <RadzenDataGridColumn TItem="EmpresaDTO" Property="RazonSocial" Title="Razon Social" Filterable="false" />
+                            <RadzenDataGridColumn TItem="EmpresaDTO" Property="CuitRepresentante" Title="Representante" Filterable="false" Width="150px" />
+                            <RadzenDataGridColumn TItem="EmpresaDTO" Property="FechaVigenciaDesde" Title="Vigencia Desde" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="150px" />
+                            <RadzenDataGridColumn TItem="EmpresaDTO" Property="FechaVigenciaHasta" Title="Vigencia Hasta" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="150px" />
+                            <RadzenDataGridColumn TItem="EmpresaDTO" Title="Acciones" Sortable="false" Filterable="false" CssClass="text-center" Width="130px">
+                                <Template Context="data">
+                                    <div class="ps-1">
+                                        <RadzenButton Click="@(e => EditarClick(data))"
+                                                      data-toggle="tooltip"
+                                                      data-placement="top"
+                                                      title="Editar"
+                                                      Icon="edit"
+                                                      ButtonType="ButtonType.Button"
+                                                      ButtonStyle="ButtonStyle.Light">
+
+                                        </RadzenButton>
+
+                                        <RadzenButton Click="@(e => EliminarClick(data))"
+                                                      data-toggle="tooltip"
+                                                      data-placement="top"
+                                                      title="Eliminar"
+                                                      Icon="delete"
+                                                      ButtonType="ButtonType.Button"
+                                                      ButtonStyle="ButtonStyle.Light" />
+
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <EmptyTemplate>
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="material-icons" style="font-size:64px; color:lightgray">
+                                    block
+                                </span>
+                                <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                            </div>
+                        </EmptyTemplate>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+

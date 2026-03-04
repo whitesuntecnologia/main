@@ -1,0 +1,180 @@
+﻿@page "/Tramites/FormEspecialidades/{Accion}/{IdentificadorUnico}"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@using Website.Pages.Shared;
+@attribute [Authorize]
+
+@if (routeHistory.ProvieneBandejaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "BandejaTramites","/BandejaTramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 1",""}
+                  }) />
+}
+else if (routeHistory.ProvieneConsultaTramites())
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Consulta de Trámites","/Consultas/Tramites" },
+                  { $"Trámite {tramite?.IdTramite}", $"/Tramites/{Accion}/{IdentificadorUnico}" },
+                  { $"Formulario 1",""}
+                  }) />
+}
+else
+{
+    <CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                      { "Iniciar Trámite","/Tramites/IniciarTramite"},
+                      { "Consulta de trámites","/Tramites/ConsultarTramites"},
+                      { $"Trámite {tramite?.IdTramite}",$"/Tramites/{Accion}/{IdentificadorUnico}"},
+                      { $"Formulario 1",""}
+                      }) />
+}
+
+<hr class="mt-2 mb-2" />
+
+
+<h3>
+    Tr&aacute;mite @tramite?.IdTramite - Especialidades y DDJJ -
+    <a href="/" @onclick=@(args => VolverAlVisor()) @onclick:preventDefault>Ir al Progreso del trámite</a>
+</h3>
+
+<div class="card mt-3">
+    <div class="card-header pt-2 pb-2 navbar-button" >
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Lista de Especialidades</h4>
+            </div>
+            <div>
+                @if (PermiteEditar)
+                {
+                    <button type="button" class="btn btn-violet" @onclick=@AgregarEspecialidadesClick>
+                        <span class="d-flex flex-row justify-content-between align-items-center">
+                            <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">add</span>
+                            <span>Agregar Especialidad</span>
+                        </span>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+
+        <div class="row mt-1">
+            <div class="col-12">
+                <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                    Cantidad de registros: @lstEspecialidades.Count
+                </div>
+
+                <RadzenDataGrid @ref="grdEspecialidades"
+                Count="@lstEspecialidades.Count"
+                Data="@lstEspecialidades"
+                AllowSorting="true"
+                AllowPaging="false"
+                AllowColumnResize="true"
+                TItem="ItemGrillaEspecialidadesDTO" >
+
+                    <Columns>
+
+                        <RadzenDataGridColumn TItem="ItemGrillaEspecialidadesDTO" Property="IdTramiteEspecialidad" Sortable="false" Filterable="false" CssClass="col-grid-right"  >
+                            <Template Context="data">
+                                <h4>Especialidad: <span class="rz-color-primary-dark">@data.DescripcionEspecialidad</span></h4>
+
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <h4>Tareas</h4>
+                                        <ul>
+                                            @foreach (var seccion in data.Secciones.OrderBy(x=> x.DescripcionSeccion))
+                                            {
+                                                <li class="rz-color-series-1">
+                                                    @($"Sección {seccion.DescripcionSeccion})")
+
+                                                    <RadzenButton Click="@(e => EditarEspecialidadClick(data.IdTramiteEspecialidad, seccion.IdSeccion))"
+                                                                class="ms-1"  
+                                                                data-toggle="tooltip"
+                                                                data-placement="top"
+                                                                  title=@((PermiteEditar) ? "Editar": "Visualizar")
+                                                                  Icon=@((PermiteEditar) ? "edit": "visibility")
+                                                                ButtonType="ButtonType.Button"
+                                                                Size="ButtonSize.Small"
+                                                                ButtonStyle="ButtonStyle.Light" />
+
+
+                                                    <RadzenButton Click="@(e => EliminarEspecialidadClick(seccion))"
+                                                                class="ms-1"          
+                                                                data-toggle="tooltip"
+                                                                data-placement="top"
+                                                                title="Eliminar"
+                                                                Icon="delete"
+                                                                ButtonType="ButtonType.Button"
+                                                                ButtonStyle="ButtonStyle.Light"
+                                                                Size="ButtonSize.Small"
+                                                                  Visible="@(PermiteEditar)" />
+
+                                                </li>
+                                                <ul>
+                                                    @foreach (var tarea in seccion.Tareas)
+                                                    {
+                                                        <li class="text-wrap">@($"{tarea.DescripcionTarea}")</li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        @{
+                                            <h4>Equipo / Maquinaria mínima requerida</h4>
+                                            List<ItemGrillaEspecialidadesEquiposDTO> lstEquipos = new();
+                                            foreach (var seccion in data.Secciones)
+                                            {
+                                                foreach (var tarea in seccion.Tareas)
+                                                {
+                                                    foreach (var equipo in tarea.Equipos)
+                                                    {
+                                                        if (!lstEquipos.Exists(e => e.IdEquipo == equipo.IdEquipo))
+                                                            lstEquipos.Add(equipo);
+                                                    }
+                                                }
+                                            }
+                                            <ul>
+
+                                                @foreach(var item in lstEquipos)
+                                                {
+                                                    <li class="text-wrap">@item.DescripcionEquipo</li>
+                                                }
+                                            </ul>
+                                        }
+                                    </div>
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+
+
+                    </Columns>
+                    <EmptyTemplate>
+                        <div class="d-flex flex-row align-items-center">
+                            <span class="material-icons" style="font-size:64px; color:lightgray">
+                                block
+                            </span>
+                            <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                        </div>
+                    </EmptyTemplate>
+                </RadzenDataGrid>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@if (tramite?.PermiteEditarFormulario(StaticClass.Constants.Formularios.Especialidades) ?? false)
+{
+    <FormEvaluacion 
+        IdentificadorUnico="@IdentificadorUnico" 
+        NroFormulario="1"
+        OnGuardarClick="GuardarEvaluacionClick"
+        OnCancelarClick="CancelarEvaluacionClick"
+        Visible="@EvaluandoTramite"
+        >
+    </FormEvaluacion>
+}

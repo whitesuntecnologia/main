@@ -1,0 +1,1849 @@
+﻿@using Website.Models.Formulario;
+
+<div class="card mt-3">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">DATOS INICIALES</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="d-flex align-items-center">
+            <label class="col-sm-4 text-end pe-2">A&ntilde;o:</label>
+            <div class="col-sm-8">
+                <div class="d-flex flex-row align-items-center">
+                    <CustomRadzenNumeric TValue="int?"
+                    MaxIntegers="4"
+                    MaxDecimals="0"
+                    ShowUpDown="false"
+                    @bind-Value="@Model.Anio"
+                    Disabled="true"
+                    class="form-control width-100">
+                    </CustomRadzenNumeric>
+                </div>
+                <div>
+                    <ValidationMessage For="() => Model.Anio" />
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">Fecha Balance:</label>
+            <div class="col-sm-2">
+                <RadzenDatePicker TValue="DateTime?"
+                DateFormat="d"
+                Disabled="true"
+                @bind-Value=@Model.FechaBalance
+                Max="DateTime.Today.AddDays(1)"
+                class="width-200">
+                </RadzenDatePicker>
+            </div>
+            <label class="col-sm-2 text-end pe-2">Fecha Vigencia:</label>
+            <div class="col-sm-2">
+                <RadzenDatePicker TValue="DateTime?"
+                DateFormat="d"
+                Disabled="true"
+                Value=@Model.FechaVigencia
+                class="width-200">
+                </RadzenDatePicker>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@*Obras oficiales*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">OBRAS OFICIALES</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+            <label class="col-sm-4 text-end pe-2"></label>
+            <div class="col-sm-8 ps-0">
+                <label class="width-200 me-2 text-end">Importe Empresa</label>
+                <label class="width-200 me-2 text-end">Importe Evaluador</label>
+                <label class="width-200 me-2 text-end">Coeficiente</label>
+                <label class="width-200 me-2 text-end">Resultado</label>
+            </div>
+        </div>
+        <div class="d-flex align-items-center">
+            <label class="col-sm-4 text-end pe-2">a) Dep&oacute;sitos y certificados a corto plazo:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficDepositosCortoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficDepositosCortoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasOficialesDepositosCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OoficDepositosCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">a) Dep&oacute;sitos y certificados a largo plazo:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficDepositosLargoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficDepositosLargoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasOficialesDepositosLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OoficDepositosLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">b) Inversiones en obras a corto plazo:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficInversionesCortoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficInversionesCortoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasOficialesInversionesCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OoficInversionesCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">b) Inversiones en obras a largo plazo:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficInversionesLargoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficInversionesLargoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasOficialesInversionesLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OoficInversionesLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">l) Otros Conceptos:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficOtrosConceptosEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OoficOtrosConceptos
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasOficialesOtrosConceptos"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OoficOtrosConceptos"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mt-2">
+            <RadzenButton Icon="save"
+            Text="Guardar valores Evaluador y recalcular"
+            ButtonStyle="ButtonStyle.Light"
+            Variant="Variant.Flat"
+            Size="ButtonSize.Medium"
+            Click="@(args => SaveData())"
+            @onclick:stopPropagation="true"
+            Visible="@(!ReadOnly)" />
+        </div>
+    </div>
+</div>
+
+@*Obras Particulares*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">OBRAS PARTICULARES</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+            <label class="col-sm-4 text-end pe-2"></label>
+            <div class="col-sm-8 ps-0">
+                <label class="width-200 me-2 text-end">Importe Empresa</label>
+                <label class="width-200 me-2 text-end">Importe Evaluador</label>
+                <label class="width-200 me-2 text-end">Coeficiente</label>
+                <label class="width-200 me-2 text-end">Resultado</label>
+            </div>
+        </div>
+
+
+        <div class="d-flex align-items-center">
+            <label class="col-sm-4 text-end pe-2">c) Dep&oacute;sitos y certificados a corto plazo:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartDepositosCortoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartDepositosCortoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasParticularesDepositosCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OpartDepositosCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">c) Dep&oacute;sitos y certificados a largo plazo:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartDepositosLargoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartDepositosLargoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasParticularesDepositosLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OpartDepositosLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">d) Inversiones en obras a corto plazo:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartInversionesCortoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartInversionesCortoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasParticularesInversionesCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OpartInversionesCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">d) Inversiones en obras a largo plazo:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartInversionesLargoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartInversionesLargoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasParticularesInversionesLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OpartInversionesLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">e) Inversiones:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartInversionesEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartInversiones
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasParticularesInversiones"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OpartInversiones"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">l) Otros Conceptos:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartOtrosConceptosEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.OpartOtrosConceptos
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefObrasParticularesOtrosConceptos"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.OpartOtrosConceptos"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-2">
+            <RadzenButton Icon="save"
+            Text="Guardar valores Evaluador y recalcular"
+            ButtonStyle="ButtonStyle.Light"
+            Variant="Variant.Flat"
+            Size="ButtonSize.Medium"
+            Click="@(args => SaveData())"
+            @onclick:stopPropagation="true"
+            Visible="@(!ReadOnly)" />
+        </div>
+    </div>
+</div>
+
+@*Disponibilidades*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">DISPONIBILIDADES (Activo Disponible)</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+            <label class="col-sm-4 text-end pe-2"></label>
+            <div class="col-sm-8 ps-0">
+                <label class="width-200 me-2 text-end">Importe Empresa</label>
+                <label class="width-200 me-2 text-end">Importe Evaluador</label>
+                <label class="width-200 me-2 text-end">Coeficiente</label>
+                <label class="width-200 me-2 text-end">Resultado</label>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">f) Caja y Bancos:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.DispCajayBancosEmp
+                    Disabled="true">
+                    </NumericBox>
+
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.DispCajayBancos
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefDisponibilidadesCajaYBancos"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.DispCajayBancos"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-2">
+            <RadzenButton Icon="save"
+            Text="Guardar valores Evaluador y recalcular"
+            ButtonStyle="ButtonStyle.Light"
+            Variant="Variant.Flat"
+            Size="ButtonSize.Medium"
+            Click="@(args => SaveData())"
+            @onclick:stopPropagation="true"
+            Visible="@(!ReadOnly)" />
+        </div>
+    </div>
+</div>
+
+
+@*Bienes de uso*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">BIENES DE USO (Activo Fijo)</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+            <label class="col-sm-4 text-end pe-2"></label>
+            <div class="col-sm-8 ps-0">
+                <label class="width-200 me-2 text-end">Importe Empresa</label>
+                <label class="width-200 me-2 text-end">Importe Evaluador</label>
+                <label class="width-200 me-2 text-end">Coeficiente</label>
+                <label class="width-200 me-2 text-end">Resultado</label>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">e) Inversiones (Inm. Hip. Acc. en Ot. cías.):</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoInversionesEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoInversiones
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefBienesDeUsoInversiones"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.BusoInversiones"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">g) Maq. Util y Herr. afec activ. espec.:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoMaqUtilAfecEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoMaqUtilAfec
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefBienesDeUsoEquiposAfectados"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.BusoMaqUtilAfec"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">h) Maq. Util y Herr. NO afec activ. espec.:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoMaqUtilNoAfecEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoMaqUtilNoAfec
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefBienesDeUsoEquiposNoAfectados"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.BusoMaqUtilNoAfec"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">i) Bienes ra&iacute;ces afec. activ. espec.:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoBienesRaicesAfecEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoBienesRaicesAfec
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefBienesDeUsoInmueblesAfectados"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.BusoBienesRaicesAfec"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">i) Bienes ra&iacute;ces NO afec. activ. espec.:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoBienesRaicesNoAfecEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoBienesRaicesNoAfec
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefBienesDeUsoInmueblesNoAfectados"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.BusoBienesRaicesNoAfec"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">l) Otros Conceptos:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoOtrosConceptosEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BusoOtrosConceptos
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefBienesDeUsoOtrosConceptos"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.BusoOtrosConceptos"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-2">
+            <RadzenButton Icon="save"
+            Text="Guardar valores Evaluador y recalcular"
+            ButtonStyle="ButtonStyle.Light"
+            Variant="Variant.Flat"
+            Size="ButtonSize.Medium"
+            Click="@(args => SaveData())"
+            @onclick:stopPropagation="true"
+            Visible="@(!ReadOnly)" />
+        </div>
+    </div>
+</div>
+
+@*Bienes de cambio*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">BIENES DE CAMBIO (Activo Circulante)</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+            <label class="col-sm-4 text-end pe-2"></label>
+            <div class="col-sm-8 ps-0">
+                <label class="width-200 me-2 text-end">Importe Empresa</label>
+                <label class="width-200 me-2 text-end">Importe Evaluador</label>
+                <label class="width-200 me-2 text-end">Coeficiente</label>
+                <label class="width-200 me-2 text-end">Resultado</label>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">k) Materiales en dep&oacute;sito:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BcamMaterialesEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BcamMateriales
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefBienesDeCambioMaterialesEnDeposito"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.BcamMateriales"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">l) Otros Conceptos:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BcamOtrosConceptosEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.BcamOtrosConceptos
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefBienesDeCambioOtrosConceptos"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.BcamOtrosConceptos"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-2">
+            <RadzenButton Icon="save"
+            Text="Guardar valores Evaluador y recalcular"
+            ButtonStyle="ButtonStyle.Light"
+            Variant="Variant.Flat"
+            Size="ButtonSize.Medium"
+            Click="@(args => SaveData())"
+            @onclick:stopPropagation="true"
+            Visible="@(!ReadOnly)" />
+        </div>
+    </div>
+</div>
+
+@*Deudas*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">DEUDAS (Pasivo Exigible)</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+            <label class="col-sm-4 text-end pe-2"></label>
+            <div class="col-sm-8 ps-0">
+                <label class="width-200 me-2 text-end">Importe Empresa</label>
+                <label class="width-200 me-2 text-end">Importe Evaluador</label>
+                <label class="width-200 me-2 text-end">Coeficiente</label>
+                <label class="width-200 me-2 text-end">Resultado</label>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">m) Corto Plazo y Provisiones:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.DeuCortoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.DeuCortoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefDeudasCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.DeuCortoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">n) Largo plazo y provisiones benef. que se distrib. y ctas. pag.:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.DeuLargoPlazoEmp
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value=@Model.DeuLargoPlazo
+                    Disabled="@ReadOnly">
+                    </NumericBox>
+
+                    @*Coeficiente y Resultado*@
+                    <NumericBox TValue="decimal"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.CoefDeudasLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+
+                    <NumericBox TValue="decimal?"
+                    class="form-control width-200 text-end"
+                    MaxIntegers="14"
+                    MaxDecimals="2"
+                    @bind-Value="@Model.DatosEvaluacion.DeuLargoPlazo"
+                    Disabled="true">
+                    </NumericBox>
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-2">
+            <RadzenButton Icon="save"
+            Text="Guardar valores Evaluador y recalcular"
+            ButtonStyle="ButtonStyle.Light"
+            Variant="Variant.Flat"
+            Size="ButtonSize.Medium"
+            Click="@(args => SaveData())"
+            @onclick:stopPropagation="true"
+            Visible="@(!ReadOnly)" />
+        </div>
+    </div>
+</div>
+
+@*Totales*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Estados Contables (Totales de la empresa)</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-1">
+        <div class="card-body">
+            <div class="d-flex flex-row text-center">
+                <div class="col-1 text-center">
+                    <div>Fecha</div>
+                </div>
+                <div class="col-1">
+                    <div>Activo total</div>
+                </div>
+                <div class="col-2">
+                    <div>Activo Corriente Total</div>
+                </div>
+                <div class="col-2">
+                    <div>Activo No Corriente Total</div>
+                </div>
+                <div class="col-2">
+                    <div>Pasivo Total</div>
+                </div>
+                <div class="col-2">
+                    <div>Pasivo Corriente Total</div>
+                </div>
+                <div class="col-2">
+                    <div>Pasivo No Corriente Total</div>
+                </div>
+            </div>
+            <div class="d-flex flex-row text-center">
+                <div class="col-1 text-center">
+                    @Model.FechaBalance?.ToString("dd/MM/yyyy")
+                </div>
+                <div class="col-1">
+                    <div>@(Model.ActivoTotal.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.ActivoCorrienteTotal.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.ActivoNoCorrienteTotal.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.PasivoTotal.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.PasivoCorrienteTotal.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.PasivoNoCorrienteTotal.ToString("C"))</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Totales (Resultados de la multiplicación)*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Capital Real Espec&iacute;fico</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-1">
+        <div class="card-body">
+            <div class="d-flex flex-row text-center">
+                <div class="col-1 text-center">
+                    <div>Fecha</div>
+                </div>
+                <div class="col-1">
+                    <div>Activo total</div>
+                </div>
+                <div class="col-2">
+                    <div>Activo Corriente Total</div>
+                </div>
+                <div class="col-2">
+                    <div>Activo No Corriente Total</div>
+                </div>
+                <div class="col-2">
+                    <div>Pasivo Total</div>
+                </div>
+                <div class="col-2">
+                    <div>Pasivo Corriente Total</div>
+                </div>
+                <div class="col-2">
+                    <div>Pasivo No Corriente Total</div>
+                </div>
+            </div>
+            <div class="d-flex flex-row text-center">
+                <div class="col-1 text-center">
+                    @Model.FechaBalance?.ToString("dd/MM/yyyy")
+                </div>
+                <div class="col-1">
+                    <div>@(Model.DatosEvaluacion.ActivoTotal_Evaluar.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.DatosEvaluacion.ActivoCorrienteTotal_Evaluar.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.DatosEvaluacion.ActivoNoCorrienteTotal_Evaluar.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.DatosEvaluacion.PasivoTotal_Evaluar.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.DatosEvaluacion.PasivoCorrienteTotal_Evaluar.ToString("C"))</div>
+                </div>
+                <div class="col-2">
+                    <div>@(Model.DatosEvaluacion.PasivoNoCorrienteTotal_Evaluar.ToString("C"))</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Estados Contables*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Estados Contables / Información según Normativa Vigente</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <CustomFileUpload @ref="upload"
+        Files="@lstFiles"
+        ReadOnly="true"
+        DisableAddFile="true"
+        Accept="application/pdf">
+        </CustomFileUpload>
+
+    </div>
+</div>
+
+
+
+@*Capital Real y Capacidad Economica*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Capital Real Especifico y Capacidad Económica</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <label class="col-sm-4 text-end pe-2"></label>
+            <div class="col-sm-8 ps-0">
+                <label class="width-200 me-2 text-end">Importe</label>
+                <label class="width-200 me-2 text-end">Resultado</label>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">CAPITAL REAL ESPECIFICO:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <RadzenTextBox class="form-control width-250 text-end"
+                    Value=@(Model.ValoresCalculados.CapitalRealEspecifico.ToString("C"))
+                    Disabled="true" />
+
+                    <RadzenTextBox class="form-control width-250 text-end"
+                    Value=@(Model.ValoresCalculados.CapitalRealEspecificoEvaluar.ToString("C"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">CAPACIDAD ECONOMICA (Arq. y Rep.):</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <label class="width-250"></label>
+                    <RadzenTextBox class="form-control width-250 text-end"
+                    Value=@(Model.ValoresCalculados.CapacidadEconomicaArqRep.ToString("C"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">CAPACIDAD ECONOMICA (B y C: VI a IX):</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <label class="width-250"></label>
+                    <RadzenTextBox class="form-control width-250 text-end"
+                    Value=@(Model.ValoresCalculados.CapacidadEconomicaByC.ToString("C"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">CAPACIDAD ECONOMICA (A y C: I a V):</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <label class="width-250"></label>
+                    <RadzenTextBox class="form-control width-250 text-end"
+                    Value=@(Model.ValoresCalculados.CapacidadEconomicaAyC.ToString("C"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@if(IdGrupoTramite == StaticClass.Constants.GruposDeTramite.RegistroLicitadores)
+{
+@*Capacidad Técnica por Equipo*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Capacidades</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+
+        <RadzenDataGrid Count="@Model.lstCapacidadTecnicaxEquipo.Count"
+        Data="@Model.lstCapacidadTecnicaxEquipo"
+        AllowSorting="true"
+        AllowPaging="false"
+        AllowColumnResize="true"
+        TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model">
+            <Columns>
+
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model" Property="Rama" Title="Rama" Filterable="false" Width="50px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model" Property="DescripcionSeccion" Title="Especialidad" Filterable="false" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model" Property="Importe" Title="Capacidad técnica por equipo" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model" Property="ImporteResultante" Title="Capacidad Económica" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" />
+            </Columns>
+            <EmptyTemplate>
+                <div class="d-flex flex-row align-items-center">
+                    <span class="material-icons" style="font-size:64px; color:lightgray">
+                        block
+                    </span>
+                    <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                </div>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+
+    </div>
+</div>
+
+
+@*Capacidad de Producción*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Capacidad de Producci&oacute;n</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <label class="col-sm-4 text-end pe-2"></label>
+            <div class="col-sm-8 ps-0">
+                <label class="width-200 me-2 text-end">Resultado</label>
+                <label class="width-200 me-2 text-end">Resultante</label>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">Indice de Solvencia:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.IndiceSolvencia.ToString("N2"))
+                    Disabled="true" />
+
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.IndiceSolvenciaResultante.ToString("N2"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">Indice de Liquidez:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.IndiceLiquidez.ToString("N2"))
+                    Disabled="true" />
+
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.IndiceLiquidezResultante.ToString("N2"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">Antigüedad en el país:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.AniosAntiguedadEmpresa.ToString("N0"))
+                    Disabled="true" />
+
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.IndiceAntiguedadEmpresa.ToString("N2"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">Relación Equipos:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.IndiceRelacionEquipos.ToString("N2"))
+                    Disabled="true" />
+
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.IndiceRelacionEquiposResultante.ToString("N2"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+        <div class="d-flex align-items-center mt-1">
+            <label class="col-sm-4 text-end pe-2">Factor:</label>
+            <div class="col-sm-8">
+                <RadzenRow>
+                    <RadzenTextBox class="form-control width-200 text-end"
+                    Value=@(Model.ValoresCalculados.Factor.ToString("N4"))
+                    Disabled="true" />
+
+                </RadzenRow>
+            </div>
+        </div>
+
+        <hr />
+
+        @*Capacidad de producción*@
+        <RadzenDataGrid Count="@Model.lstCapacidadProduccion.Count"
+        Data="@Model.lstCapacidadProduccion"
+        AllowSorting="true"
+        AllowPaging="false"
+        AllowColumnResize="true"
+        TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model">
+            <Columns>
+
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model" Property="DescripcionSeccion" Title="Especialidad" Filterable="false" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model" Property="Importe" Title="Importe" FormatString="{0:C2}" Filterable="false" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecxEquipoItem_Evaluar_Model" Property="ImporteResultante" Title="Resultante" FormatString="{0:C2}" Filterable="false" />
+            </Columns>
+            <EmptyTemplate>
+                <div class="d-flex flex-row align-items-center">
+                    <span class="material-icons" style="font-size:64px; color:lightgray">
+                        block
+                    </span>
+                    <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                </div>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+
+@*Capacidad de Ejecucuión*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Capacidad de Ejecución</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+            <div class="col-12 d-flex">
+                <label class="col-form-label pe-2">Coeficiente Conceptual:</label>
+                <NumericBox TValue="decimal?"
+                class="form-control width-100 text-end"
+                MaxIntegers="1"
+                MaxDecimals="2"
+                Disabled="@ReadOnly"
+                @bind-Value=@Model.CoeficienteConceptual>
+                </NumericBox>
+
+                @if (!isBusyRefresh)
+                {
+                    if (!ReadOnly)
+                    {
+                        <button type="button" class="btn btn-secondary ms-2" @onclick=@( () => ActualizarDatosDesdeObrasClick())>
+                            <span class="d-flex flex-row justify-content-between align-items-center">
+                                <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">refresh</span>
+                                <span>Refrescar datos desde Obras</span>
+                            </span>
+                        </button>
+                    }
+                }
+                else
+                {
+                    <Spinner1 Text="Obteniendo datos..."></Spinner1>
+                }
+
+            </div>
+        </div>
+
+
+        <RadzenDataGrid class="mt-2"
+        Count="@Model.lstCapacidadEjecucion.Count"
+        Data="@Model.lstCapacidadEjecucion"
+        AllowSorting="true"
+        AllowPaging="false"
+        AllowColumnResize="true"
+        TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model">
+            <Columns>
+
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="DescripcionSeccion" Title="Especialidad" Filterable="false" Width="400px" Frozen="true" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CapacidadEconomica" FormatString="{0:C2}" Title="Económica" Filterable="false" TextAlign="TextAlign.End" HeaderCssClass="rz-column-align-right" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CapacidadProduccion" Title="Producción" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CapacidadEconomica080" Title="Económica 80%" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px"/>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CapacidadProduccion020" Title="Producción 20%" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px"/>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CapacidadEjecucion" Title="Ejecución" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CoeficienteConceptual" Title="Coef. Conceptual" FormatString="{0:N2}" Filterable="false" TextAlign="TextAlign.End" Width="180px"/>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CapacidadEjecucionAnual" Title="Ejecución Anual" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CoeficienteEstadoDeudaBCRA" Title="Coef Deuda BCRA" FormatString="{0:N2}" Filterable="false" TextAlign="TextAlign.End" Width="180px"/>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapacidadEjecucionItem_Evaluar_Model" Property="CapacidadEjecucionFinal" Title="Ejecución" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+            </Columns>
+            <EmptyTemplate>
+                <div class="d-flex flex-row align-items-center">
+                    <span class="material-icons" style="font-size:64px; color:lightgray">
+                        block
+                    </span>
+                    <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                </div>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+
+    </div>
+</div>
+
+
+@*Capacidad Técnica Hoja 2*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Capacidad Técnica</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <RadzenDataGrid class="mt-2"
+        Count="@Model.lstCapacidadTecnica.Count"
+        Data="@Model.lstCapacidadTecnica"
+        AllowSorting="true"
+        AllowPaging="false"
+        AllowColumnResize="true"
+        AllowGrouping="false"
+        TItem="BalanceGeneral_CapTecItem_Evaluar_Model"
+        Render="@OnRenderCapTecnica2">
+
+            <GroupHeaderTemplate>
+                @context.GroupDescriptor.GetTitle(): @(context.Data.Key ?? "")
+            </GroupHeaderTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Property="Periodo" FormatString="{0:C2}" Title="Periodo" Filterable="false" TextAlign="TextAlign.End" Width="115px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Property="Monto" FormatString="{0:C2}" Title="Monto" Filterable="false" TextAlign="TextAlign.End" Width="165px"/>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Property="CoefActualizacion" Title="Coef. Actualización" FormatString="{0:N2}" Filterable="false" TextAlign="TextAlign.End" Width="180px"/>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Property="MontoActualizado" Title="Monto Actualizado" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="180px"/>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Property="CoefTipoObra" Title="Coef. Tipo Obra" FormatString="{0:N2}" Filterable="false" TextAlign="TextAlign.End" Width="160px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Property="CapacidadTecnica" Title="Capacidad Técnica" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="190px">
+                    <GroupFooterTemplate>
+                        <b>@String.Format(new System.Globalization.CultureInfo("es-AR"), "{0:C}", context.Data.Items.Cast<BalanceGeneral_CapTecItem_Evaluar_Model>().Sum(o => o.CapacidadTecnica).GetValueOrDefault() / 4)</b>
+                    </GroupFooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Title="Capacidad Técnica x Equipo" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="245px" >
+                    <Template>
+                    </Template>
+                    <GroupFooterTemplate>
+                        <b>@String.Format(new System.Globalization.CultureInfo("es-AR"), "{0:C}", context.Data.Items.Cast<BalanceGeneral_CapTecItem_Evaluar_Model>().Select(o => o.CapacidadTecnicaxEquipo).FirstOrDefault())</b>
+                    </GroupFooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Property="CoerficienteConceptual" Title="Coef. Conceptual" FormatString="{0:N2}" Filterable="false" TextAlign="TextAlign.End" Width="165px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_CapTecItem_Evaluar_Model" Title="Capacidad Técnica" FormatString="{0:N2}" Filterable="false" TextAlign="TextAlign.End" Width="200px" >
+                    <GroupFooterTemplate>
+                        <b>@String.Format(new System.Globalization.CultureInfo("es-AR"), "{0:C}", context.Data.Items.Cast<BalanceGeneral_CapTecItem_Evaluar_Model>().Select(o => o.CapacidadTecnicaFinal).FirstOrDefault())</b>
+                    </GroupFooterTemplate>
+                </RadzenDataGridColumn>
+
+
+            </Columns>
+            <EmptyTemplate>
+                <div class="d-flex flex-row align-items-center">
+                    <span class="material-icons" style="font-size:64px; color:lightgray">
+                        block
+                    </span>
+                    <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                </div>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+
+    </div>
+</div>
+
+@*Monto Comprometido Obras en Ejecucion*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Detalle de los montos comprometidos de las Obras en Ejecución</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <RadzenDataGrid class="mt-2"
+        Count="@Model.lstDetalleObrasEnEjecucion.Count"
+        Data="@Model.lstDetalleObrasEnEjecucion"
+        AllowSorting="true"
+        AllowPaging="false"
+        AllowColumnResize="true"
+        AllowGrouping="false"
+        TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" >
+            <Columns>
+
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="ObraNombre" Title="Obra" Filterable="false" Width="400px" Frozen="true"   >
+                    <FooterTemplate>
+                        Total
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="Comitente" Title="Comitente" Filterable="false" Width="250px"  />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="PeríodoBase" Title="Período Base" Filterable="false" Width="150px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="FechaInicio" Title="F.Inicio" FormatString="{0:dd/MM/yyyy}" Filterable="false" TextAlign="TextAlign.End" Width="200px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="TotalContratado" FormatString="{0:C2}" Title="Total Contratado" Filterable="false" TextAlign="TextAlign.End" Width="200px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="TotalCertificado" Title="Total Certificado" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="200px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="Saldo" Title="Saldo" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="200px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="FechaCertificacion" Title="F.Certificación" FormatString="{0:dd/MM/yyyy}" Filterable="false" TextAlign="TextAlign.End" Width="200px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="Plazo" Title="Plazo" FormatString="{0:N0}" Filterable="false" TextAlign="TextAlign.End" Width="200px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="DiasTranscurridos" Title="Días Trans." FormatString="{0:N0}" Filterable="false" TextAlign="TextAlign.End" Width="150px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="SaldoDias" Title="Saldo" FormatString="{0:N0}" Filterable="false" TextAlign="TextAlign.End" Width="150px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="MontoMensual" Title="Monto Mensual" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="200px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="MontoAnual" Title="Monto Anual" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="200px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="PorcentajeCertificado" Title="% Certificado" FormatString="{0:F2}" Filterable="false" TextAlign="TextAlign.End" Width="150px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="PorcentajeTiempo" Title="% Tiempo" FormatString="{0:F2}" Filterable="false" TextAlign="TextAlign.End" Width="150px"  />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="CoefMatriz" Title="Coef. Matriz" FormatString="{0:F2}" Filterable="false" TextAlign="TextAlign.End" Width="150px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="CoefParticipacion" Title="Participación" FormatString="{0:F2}" Filterable="false" TextAlign="TextAlign.End" Width="150px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ObrasEjecucionItem_Evaluar_Model" Property="MontoComprometido" Title="Monto Comprometido" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" HeaderCssClass="text-end" Width="250px" >
+                    <FooterTemplate>
+                        <b>@String.Format(new System.Globalization.CultureInfo("es-AR"), "{0:C}", Model.lstDetalleObrasEnEjecucion.Sum(o => o.MontoComprometido))</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+
+            </Columns>
+            <EmptyTemplate>
+                <div class="d-flex flex-row align-items-center">
+                    <span class="material-icons" style="font-size:64px; color:lightgray">
+                        block
+                    </span>
+                    <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                </div>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+
+    </div>
+</div>
+
+@*Constancia de Capacidad*@
+<div class="card mt-1">
+    <div class="card-header pt-1 pb-1 navbar-button">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h4 class="card-title mb-0">Constancia de Capacidad</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <RadzenDataGrid class="mt-2"
+        Count="@Model.lstConstanciaCapacidad.Count"
+        Data="@Model.lstConstanciaCapacidad"
+        AllowSorting="true"
+        AllowPaging="false"
+        AllowColumnResize="true"
+        AllowGrouping="false"
+        TItem="BalanceGeneral_ConstanciaCapacidadItem_Evaluar_Model" >
+            <Columns>
+                <RadzenDataGridColumn TItem="BalanceGeneral_ConstanciaCapacidadItem_Evaluar_Model" Property="DescripcionSeccion" Title="Especialidad" Filterable="false" Width="400px" Frozen="true" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ConstanciaCapacidadItem_Evaluar_Model" Property="CapacidadTecnica" FormatString="{0:C2}" Title="Técnica" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ConstanciaCapacidadItem_Evaluar_Model" Property="CapacidadTecnicaUVI" Title="Actualizada UVI" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ConstanciaCapacidadItem_Evaluar_Model" Property="CapacidadContratacion" Title="Contratación" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ConstanciaCapacidadItem_Evaluar_Model" Property="CapacidadContratacionUVI" Title="Actualizada UVI" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ConstanciaCapacidadItem_Evaluar_Model" Property="EjecucaionAnual" Title="Ejecución Anual" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+                <RadzenDataGridColumn TItem="BalanceGeneral_ConstanciaCapacidadItem_Evaluar_Model" Property="EjecucaionAnualUVI" Title="Actualizada UVI" FormatString="{0:C2}" Filterable="false" TextAlign="TextAlign.End" Width="250px" />
+            </Columns>
+            <EmptyTemplate>
+                <div class="d-flex flex-row align-items-center">
+                    <span class="material-icons" style="font-size:64px; color:lightgray">
+                        block
+                    </span>
+                    <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                </div>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+
+    </div>
+</div>
+
+@if (Model.IdTipoTramite == StaticClass.Constants.TiposDeTramite.Reli_Licitar)
+    {
+        <div class="row mt-1">
+            <div class="col-12 d-flex">
+                <label class="col-form-label ps-2 pe-2">Monto de la Obra a Licitar:</label>
+                <NumericBox TValue="decimal"
+                class="form-control width-150 text-end me-2"
+                MaxIntegers="10"
+                MaxDecimals="2"
+                Disabled="true"
+                @bind-Value=@Model.MontoObra>
+                </NumericBox>
+                @if (Model.lstConstanciaCapacidad.Sum(o => o.CapacidadContratacion) < Model.MontoObra)
+                {
+                    <div class="alert alert-warning inline-block m-0 p-1">
+                        El Monto de la Obra es superior a la Capacidad de Contratación
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="row mt-1">
+            <div class="col-12 d-flex">
+                <label class="col-form-label ps-2 pe-2">Capacidad técnica requerida: @Model.MontoObra.ToString("N2", new System.Globalization.CultureInfo("es-AR"))</label>
+            </div>
+        </div>
+
+
+        <div class="row mt-1">
+            <div class="col-12 d-flex">
+                <label class="col-form-label ps-2 pe-2">Capacidad de Contratación requerida: @Model.CapacidadContratacionAnualRequerida.ToString("N2", new System.Globalization.CultureInfo("es-AR"))</label>
+            </div>
+        </div>
+
+        <div class="row mt-1">
+            <div class="col-12 d-flex">
+                <label class="col-form-label ps-2 pe-2">Fecha de Vencimiento de la Constancia Anterior: 
+                    @(
+                                Model.FechaVencimientoConstanciaAnterior.HasValue
+                                                             ? Model.FechaVencimientoConstanciaAnterior.Value.ToString("dd/MM/yyyy")
+                                                             : string.Empty
+                                )
+                            </label>
+
+                @if (Model.FechaVencimientoConstanciaAnterior.HasValue && Model.FechaVencimientoConstanciaAnterior.Value < DateTime.Now.Date)
+                {
+                    <div class="alert alert-warning m-0 p-1">
+                        La Constancia de Inscripción se encuentra vencida.
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}

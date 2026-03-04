@@ -1,0 +1,87 @@
+﻿@page "/BandejaTramites"
+
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize]
+
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {$"Bandeja de trámites",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Bandeja de trámites
+</h3>
+
+<div class="row">
+    <div class="col-6">
+        <label>Lista de tr&aacute;mites</label>
+    </div>
+    <div class="col-6 text-end">
+        <label>Cantidad de registros: @lstTramites.Count()</label>
+    </div>
+</div>
+
+<div class="row mt-1">
+    <div class="col-12">
+        <RadzenDataGrid @ref="grdTramites"
+                        Count="@lstTramites.Count"
+                        Data="@lstTramites"
+                        AllowSorting="true"
+                        AllowPaging="true"
+                        AllowColumnResize="true"
+                        PageSize="20"
+                        TItem="ItemGrillaBandejaDTO">
+
+            <Columns>
+
+                <RadzenDataGridColumn TItem="ItemGrillaBandejaDTO" Property="IdTramite" Title="Nro. Trámite" Width="130px" />
+                <RadzenDataGridColumn TItem="ItemGrillaBandejaDTO" Property="NombreTipoTramite" Title="Tipo Trámite" Width="230px" />
+                <RadzenDataGridColumn TItem="ItemGrillaBandejaDTO" Property="UsernameEmpresa" Title="Empresa" />
+                <RadzenDataGridColumn TItem="ItemGrillaBandejaDTO" Property="CreateDate" Title="Fecha Inicio" FormatString="{0:dd/MM/yyyy HH:mm}" Width="160px" />
+                <RadzenDataGridColumn TItem="ItemGrillaBandejaDTO" Property="NombreEstado" Title="Estado" />
+                <RadzenDataGridColumn TItem="ItemGrillaBandejaDTO" Property="FechaAsignacion" Title="Fecha Asignación" FormatString="{0:dd/MM/yyyy HH:mm}" CssClass="text-center"  Width="170px" />
+                <RadzenDataGridColumn TItem="ItemGrillaBandejaDTO" Property="IdTramite" Sortable="false" Filterable="false" CssClass="text-center" Width="120px">
+                    <Template Context="data">
+
+                        @if (!isBusyTomar)
+                        {
+                            @if (string.IsNullOrWhiteSpace(data.UsuarioAsignado))
+                            {
+
+                                <RadzenButton Click="@(e => TomarClick(data))"
+                                      data-toggle="tooltip"
+                                      data-placement="top"
+                                      title="Asignar"
+                                      Icon="system_update_alt"
+                                      ButtonType="ButtonType.Button"
+                                      ButtonStyle="ButtonStyle.Light"/>
+
+                            }
+
+                            <RadzenButton Click="@(e => VisualizarClick(data))"
+                                          data-toggle="tooltip"
+                                          data-placement="top"
+                                          title="visualizar"
+                                          Icon="visibility"
+                                          ButtonType="ButtonType.Button"
+                                          ButtonStyle="ButtonStyle.Light" />
+
+                        }
+                        else
+                        {
+                            <Spinner1/>
+                        }
+
+                    </Template>
+                </RadzenDataGridColumn>
+
+            </Columns>
+            <EmptyTemplate>
+                <p>No hay registros</p>
+            </EmptyTemplate>
+        </RadzenDataGrid>
+    </div>
+
+</div>

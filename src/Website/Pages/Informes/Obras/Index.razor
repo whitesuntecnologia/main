@@ -1,0 +1,166 @@
+﻿@page "/Consultas/Obras"
+@using BlazorPro.Spinkit
+@using DataTransferObject;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "ConsultasObras")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  {$"Informes","/29"},
+                  {$"Obras",""}
+                  }) />
+<hr class="mt-2 mb-2" />
+
+
+<SpinLoader IsLoading="@isBusyInitialLoading">
+    <LoadingTemplate>
+
+        <div class="row mt-3 text-center" style="height:50vh">
+            <Wander Size="50px" Center="true" class="spinner-color"></Wander>
+            @if (isBusyInitialLoading)
+            {
+                <h2>Cargando...</h2>
+            }
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+        <div class="d-flex flex-row justify-content-between">
+            <h3>
+                Obras
+            </h3>
+        </div>
+        <div class="card mt-1">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <h4 class="card-title mb-0 p-1">B&uacute;squeda de Obras</h4>
+            </div>
+            <div class="card-body">
+                <div class="card-body p-0 mb-1">
+                    <EditForm Model="@BusquedaModel">
+                        <Blazored.FluentValidation.FluentValidationValidator />
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">CUIT Empresa:</label>
+                            <div class="col-4">
+                                <CustomRadzenNumeric TValue="decimal?"
+                                                     MaxIntegers="11"
+                                                     MaxDecimals="0"
+                                                     class="form-control"
+                                                     ShowUpDown="false"
+                                @bind-Value=@BusquedaModel.Cuit
+                                                     Placeholder="11 dígitos sin guiones" />
+                                <ValidationMessage For="() => BusquedaModel.Cuit" />
+                            </div>
+
+                            <label class="col-form-label col-2 text-end">Razón Social:</label>
+                            <div class="col-4">
+                                <RadzenTextBox class="form-control"
+                                               MaxLength="100"
+                                @bind-Value=@BusquedaModel.RazonSocial />
+                                <ValidationMessage For="() => BusquedaModel.RazonSocial" />
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <label class="col-form-label col-2 text-end">Nombre Obra:</label>
+                            <div class="col-4">
+                                <RadzenTextBox class="form-control"
+                                               MaxLength="100"
+                                @bind-Value=@BusquedaModel.Nombre />
+                                <ValidationMessage For="() => BusquedaModel.Nombre" />
+                            </div>
+                     
+                        </div>
+
+
+
+                        <div class="d-flex flex-row align-items-end justify-content-center mt-2">
+                            <button type="button" class="btn btn-violet" @onclick=@BuscarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">search</span>
+                                    <span>Buscar</span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-light ms-1" @onclick=@LimpiarClick>
+                                <span class="d-flex flex-row justify-content-between align-items-center">
+                                    <span class="material-icons me-1" style="font-size:16px;cursor:pointer;">filter_alt_off</span>
+                                    <span>Limpiar</span>
+                                </span>
+                            </button>
+                        </div>
+
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card mt-3">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <div class="d-flex flex-row justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">Listado de Obras</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+
+                <div class="p-1 rz-background-color-base-100 rz-border-color-base-300 w-100" style="border:1px solid;">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div>
+                            Cantidad de registros: @lstObras.Count()
+                        </div>
+                        <div>
+
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Exportar <i class="mdi mdi-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu " data-popper-placement="bottom-start" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 38px);">
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarExcel>Excel</a>
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarCsv>Csv</a>
+                                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick=@ExportarPdf>Pdf</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <RadzenDataGrid @ref=@grd Count="@lstObras.Count"
+                                class="mt-1"
+                                Data="@lstObras"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                AllowColumnResize="true"
+                                TItem="InformeObraDTO"
+                                ColumnWidth="200px"
+                                PageSize="5"
+                                IsLoading="@isBusyGrid">
+                    <Columns>
+
+                        <RadzenDataGridColumn TItem="InformeObraDTO" Property="Nombre" Title="Obra" Filterable="false" Width="300px" />
+                        <RadzenDataGridColumn TItem="InformeObraDTO" Property="Expediente" Title="Expediente" Filterable="false" Width="250px" />
+                        <RadzenDataGridColumn TItem="InformeObraDTO" Property="CuitEmpresa" Title="CUIT" Filterable="false" Width="150px" />
+                        <RadzenDataGridColumn TItem="InformeObraDTO" Property="RazonSocialEmpresa" Title="Razón Social" Filterable="false" Width="250px"  />
+                        <RadzenDataGridColumn TItem="InformeObraDTO" Property="MontoObra" Title="Monto" FormatString="{0:C2}" Filterable="false" Width="140px" CssClass="text-end pe-1" HeaderCssClass="text-end" />
+                        <RadzenDataGridColumn TItem="InformeObraDTO" Property="PorcentajeAvance" Title="% Avance" FormatString="{0:N2}" Filterable="false" Width="100px" CssClass="text-end pe-1" HeaderCssClass="text-end" />
+
+                    </Columns>
+                    <EmptyTemplate>
+                        <div class="d-flex flex-row align-items-center">
+                            <span class="material-icons" style="font-size:64px; color:lightgray">
+                                block
+                            </span>
+                            <strong class="ms-1">@StaticClass.Constants.DatagridNoRecords</strong>
+                        </div>
+                    </EmptyTemplate>
+                </RadzenDataGrid>
+
+
+
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>

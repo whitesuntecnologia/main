@@ -1,0 +1,145 @@
+﻿@page "/Tramites/SolicitudObraParaLicitar"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Empresa")]
+
+<CustomBreadCrumb Path=@(new Dictionary<string, string>(){
+                  { "Quiero un certificado","/Tramites/IniciarCertificadoLicitar" },
+                  { "Solicitud de Obra para licitar","" }
+}) />
+<hr class="mt-2 mb-2" />
+
+<h3>
+    Solicitud de Obra faltante
+</h3>
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+
+     @if (!solicitudEnviada)
+    {
+
+        <div class="card mt-1">
+            <div class="card-header pt-1 pb-1 navbar-button">
+                <h4 class="card-title mb-0 p-1">Ingreso de datos para el envío del mail</h4>
+            </div>
+            <div class="card-body">
+                <div class="card-body p-0 mb-1">
+
+
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">Denominación de la obra:</label>
+                        <div class="col-sm-9">
+
+                            <RadzenTextBox class="form-control"
+                                            @bind-value=@Model.NombreObra
+                                            />
+
+                            <div>
+                                <ValidationMessage For="() => Model.NombreObra" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">Fecha de Licitación:</label>
+                        <div class="col-sm-9">
+
+                            <RadzenDatePicker TValue="DateTime?"
+                                              DateFormat="d"
+                                              Style="width:300px"
+                                              @bind-Value=@Model.FechaLicitacion
+                                               />
+                            <div>
+                                <ValidationMessage For="() => Model.FechaLicitacion" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">Número de Expediente o identificación:</label>
+                        <div class="col-sm-9">
+
+                            <RadzenTextBox class="form-control"
+                                           @bind-value=@Model.NroExpediente />
+
+                            <div>
+                                <ValidationMessage For="() => Model.NroExpediente" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-1">
+                        <label class="col-sm-3 col-form-label">Adjuntar PDF como respaldo de lo solicitado:</label>
+                        <div class="col-sm-9">
+                            <CustomFileUpload @ref="upload1"
+                                              OnFileUploaded="FileUploaded1"
+                                              OnFileDeleted="FileDeletionRequested1"
+                                              OnError="FileError"
+                                              Files="@lstFiles1"
+                                              ReadOnly="false"
+                                              Accept="application/pdf">
+                            </CustomFileUpload>
+                            <ValidationMessage For="() => Model.File" />
+                        </div>
+                    </div>
+
+
+                    @if (_appSettings?.isDesarrollo ?? false)
+                    {
+                        <div class="card mt-3">
+                            <div class="card-header pt-1 pb-1 navbar-button ">
+                                <div class="d-flex flex-row justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="card-title mb-0">Mail de destino</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="alert alert-warning">
+                                    Esta opción solo aparece cuando el sistema está configurado en modo Desarrollo. En el modo productivo esta dirección se saca de los parámetros del sistema.
+                                </div>
+
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label">Dirección de mail donde se recibirá el pedido:</label>
+                                    <div class="col-sm-9">
+                                        <RadzenTextBox class="form-control"
+                                        @bind-value=@mailto />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-12">
+                @if (!isBusyAceptar)
+                {
+                    <div class="d-flex flex-row justify-content-end">
+                        <button type="submit" class="btn btn-primary ">Solicitar Obra</button>
+                        <button type="button" class="btn btn-secondary ms-1" style="width:120px" @onclick=@CancelarClick>Cancelar</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="spinner-border text-pink" role="status"></div>
+                }
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <div class="alert alert-success mt-2">
+            <p class="fs-3 mt-1 mb-1">
+                La solicitud ha sido enviada correctamente, por favor espere a que la misma haya sido procesada.
+            </p>
+        </div>
+        
+    }
+
+</EditForm>

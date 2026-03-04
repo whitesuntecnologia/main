@@ -1,0 +1,79 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+
+@attribute [Authorize]
+
+<EditForm Model="@Model" OnSubmit="OnClickAceptar">
+    <Blazored.FluentValidation.FluentValidationValidator />
+
+    <RadzenLayout Style="height: auto">
+        <RadzenBody class="mbottom30">
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-end">Disposición: <span class="text-danger">*</span></label>
+                <div class="col-sm-9">
+                    <RadzenTextBox class="form-control"
+                                   @bind-value="@Model.Nombre"
+                                   MaxLength="200"
+                                   Placeholder="Ingrese el nombre de la sanción" />
+                    <ValidationMessage For="() => Model.Nombre" />
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-end">Fecha Desde: <span class="text-danger">*</span></label>
+                <div class="col-sm-9">
+                    <RadzenDatePicker TValue="DateTime"
+                                      DateFormat="dd/MM/yyyy"
+                                      class="width-200"
+                                      @bind-Value="@Model.FechaDesdeSancion" />
+                    <ValidationMessage For="() => Model.FechaDesdeSancion" />
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-end">Fecha Hasta:</label>
+                <div class="col-sm-9">
+                    <RadzenDatePicker TValue="DateTime ?"
+                                      DateFormat="dd/MM/yyyy"
+                                      class="width-200"
+                                      @bind-Value="@Model.FechaHastaSancion"
+                                      Min="@Model.FechaDesdeSancion" />
+                    <ValidationMessage For="() => Model.FechaHastaSancion" />
+                    <small class="text-muted">Dejar vacío si la sanción está vigente</small>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-end">Archivo: <span class="text-danger">*</span></label>
+                <div class="col-sm-9">
+                    <CustomFileUpload @ref="upload"
+                                      OnFileUploaded="HandleFileUploaded"
+                                      OnFileDeleted="HandleFileDeletionRequested"
+                                      OnError="HandleError"
+                                      Files="@lstFilesSanciones"
+                                      Accept="application/pdf">
+                    </CustomFileUpload>
+                    <ValidationMessage For="() => Model.IdFileSancion" />
+                </div>
+            </div>
+
+
+        </RadzenBody>
+        <RadzenFooter class="mt-3">
+
+            <div class="d-flex flex-row text-end justify-content-end">
+                @if (!isBusyAceptar)
+                {
+                    <button type="submit" class="btn btn-violet" style="width: 120px">Aceptar</button>
+                    <button type="button" class="btn btn-light" @onclick="OnClickCancelar" style="width: 120px">Cancelar</button>
+                }
+                else
+                {
+                    <Spinner1 Text="Guardando..." />
+                }
+            </div>
+
+        </RadzenFooter>
+
+    </RadzenLayout>
+</EditForm>
